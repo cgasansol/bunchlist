@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Admin Portal - ZP Work Registry</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        /* =========================================================
+           THEME VARIABLES (Paschim Bardhaman Theme)
+           ========================================================= */
+        :root {
+            --theme-primary: #f6931d;
+            --theme-dark-orange: #d97706;
+            --theme-gradient: linear-gradient(135deg, #ffb23f 0%, #f6931d 100%);
+            --govt-navy: #0f172a;
+            --bg-light: #f4f7f6;
+            --text-main: #1e293b;
+            --border-light: #e2e8f0;
+            --card-bg: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); color: var(--text-main); margin: 0; overflow-x: hidden; height: 100vh; display: flex; flex-direction: column;}
+        h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+
+        /* HEADER & TOP BAR */
+        .top-bar { background-color: #020617; color: #cbd5e1; padding: 10px 0; font-size: 13.5px; font-weight: 500; flex-shrink: 0;}
+        .header-main { background: var(--card-bg); padding: 15px 0; border-bottom: 2px solid var(--theme-primary); position: relative; z-index: 10; flex-shrink: 0;}
+        .brand-left { display: flex; align-items: center; gap: 15px; }
+        .brand-left img { height: 65px; width: 65px; object-fit: contain; }
+        .brand-titles h1 { font-size: 24px; font-weight: 900; color: var(--govt-navy); margin: 0; line-height: 1.1; }
+        .brand-titles h2 { font-size: 13px; font-weight: 700; color: var(--theme-primary); margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px;}
+        .railway-style-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px dashed var(--theme-primary); border-radius: 8px; background: rgba(246, 147, 29, 0.05);}
+        .dm-link-text { color: var(--govt-navy); font-size: 11px; font-weight: 800; text-align: right; text-transform: uppercase; }
+
+        /* SCREENS & ANIMATIONS */
+        .app-screen { display: none; opacity: 0; transition: opacity 0.4s ease; flex: 1;} 
+        .active-screen { display: flex; opacity: 1; animation: fadeIn 0.4s ease forwards;}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* LOGIN SCREEN */
+        #login-screen { align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1920&q=80') center/cover; position: relative;}
+        #login-screen::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1; }
+        .login-box { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 50px 40px; border-radius: 24px; text-align: center; width: 100%; max-width: 450px; z-index: 2; border: 1px solid var(--glass-border); box-shadow: 0 30px 60px rgba(0,0,0,0.4); border-top: 8px solid var(--theme-primary);}
+        .login-logo { height: 90px; width: 90px; object-fit: contain; margin-bottom: 20px; }
+        .form-floating-custom { position: relative; margin-bottom: 20px; text-align: left; }
+        .form-floating-custom i { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #64748b; font-size: 18px; }
+        .form-floating-custom input { width: 100%; padding: 15px 15px 15px 45px; background: #fff; border: 1px solid var(--border-light); border-radius: 12px; font-weight: 600; font-size: 15px; outline: none; color: var(--govt-navy);}
+        .form-floating-custom input:focus { border-color: var(--theme-primary); box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.15); }
+        .btn-gradient { background: var(--theme-gradient); color: #fff; font-weight: 800; padding: 15px; border: none; border-radius: 12px; text-transform: uppercase; width: 100%; font-size: 16px; transition: 0.3s;}
+        .btn-gradient:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(246, 147, 29, 0.4); }
+
+        /* DASHBOARD LAYOUT */
+        .admin-dashboard-container { display: flex; width: 100%; max-width: 1800px; margin: 0 auto; padding: 20px; gap: 20px; flex: 1; overflow: hidden;}
+        
+        /* SIDEBAR */
+        .admin-sidebar { width: 280px; background: var(--govt-navy); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--card-shadow); overflow-y: auto;}
+        .admin-sidebar::-webkit-scrollbar { width: 4px; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: var(--theme-primary); border-radius: 10px; }
+
+        .sidebar-user { text-align: center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;}
+        .sidebar-user img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--theme-primary); margin-bottom: 10px; object-fit: cover;}
+        .sidebar-user h4 { color: #fff; font-size: 16px; margin: 0; }
+        .sidebar-user p { color: #94a3b8; font-size: 12px; margin: 0; font-weight: bold; text-transform: uppercase;}
+        
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;}
+        .sidebar-menu li { background: rgba(255,255,255,0.05); border-radius: 12px; transition: 0.3s; cursor: pointer; border: 1px solid transparent;}
+        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 15px; color: #cbd5e1; text-decoration: none; font-weight: 700; font-size: 13px; gap: 15px;}
+        .sidebar-menu li i { font-size: 16px; width: 25px; text-align: center;}
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: var(--theme-gradient); border-color: var(--theme-primary); transform: translateX(5px); box-shadow: 0 5px 15px rgba(246, 147, 29, 0.2);}
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: #fff; }
+        
+        /* FORM CONTENT (Left Panel) */
+        .admin-content { width: 400px; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 24px; padding: 25px; border: 1px solid var(--border-light); overflow-y: auto; box-shadow: var(--card-shadow); flex-shrink: 0;}
+        .admin-content::-webkit-scrollbar { width: 6px; }
+        .admin-content::-webkit-scrollbar-thumb { background: var(--theme-primary); border-radius: 10px; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--border-light); padding-bottom: 15px; margin-bottom: 25px; }
+        .section-header h2 { color: var(--govt-navy); font-size: 20px; margin: 0; font-weight: 900; display: flex; align-items: center; gap: 10px;}
+        .entry-badge { background: rgba(246, 147, 29, 0.15); color: var(--theme-dark-orange); border: 1px solid rgba(246, 147, 29, 0.3); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+
+        .advanced-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 800; color: #475569; font-size: 11.5px; text-transform: uppercase;}
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--govt-navy); outline: none; transition: 0.3s; }
+        .form-group textarea { resize: vertical; min-height: 55px; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--theme-primary); background: #fff; box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.1); }
+        
+        .btn-add { background: rgba(246, 147, 29, 0.1); color: var(--theme-dark-orange); border: 1px solid var(--theme-primary); padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; grid-column: span 2;}
+        .btn-add:hover { background: var(--theme-gradient); color: #fff; box-shadow: 0 5px 15px rgba(246, 147, 29, 0.3); transform: translateY(-2px); }
+
+        .action-buttons { display: flex; gap: 10px; grid-column: span 2; margin-top: 10px; flex-direction: column;}
+        .btn-action { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-print { background: var(--govt-navy); color: #fff; }
+        .btn-print:hover { background: #020617; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(15, 23, 42, 0.2);}
+        .btn-download { background: var(--theme-gradient); color: #fff; }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(246, 147, 29, 0.3);}
+        .btn-danger-outline { background: transparent; color: #ef4444; border: 1px dashed #ef4444; }
+        .btn-danger-outline:hover { background: #ef4444; color: #fff; }
+
+        /* PREVIEW SECTION & WRAPPERS (Right Panel) */
+        .admin-preview { flex: 1; background: #cbd5e1; border-radius: 24px; padding: 20px; display: flex; justify-content: center; align-items: center; overflow: auto; position: relative; border: 2px dashed #94a3b8; box-shadow: inset 0 0 20px rgba(0,0,0,0.05);}
+        .document-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px; transform-origin: center center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.48);}
+
+        /* =========================================================
+           OFFICIAL REGISTER PAGE STRUCTURE (LEGAL LANDSCAPE)
+           ========================================================= */
+        .register-page { 
+            width: 356mm; 
+            min-height: 216mm; 
+            background: #ffffff;
+            color: #000000;
+            padding: 20mm;
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            font-family: 'Times New Roman', Times, serif; 
+        }
+
+        .reg-official-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px double #000;
+            padding-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 95px;
+        }
+
+        .reg-wb-logo {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 85px; 
+            width: auto;
+            margin-top: -6px;
+            z-index: 5;
+        }
+
+        .zp-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #000;
+            text-transform: uppercase;
+            margin: 0 0 8px 0;
+            letter-spacing: 1.5px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .zp-subtitle {
+            font-size: 22px;
+            font-weight: bold;
+            color: #222;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .reg-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .reg-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #1a1a1a;
+            text-transform: capitalize;
+            text-decoration: underline;
+            font-style: italic;
+        }
+
+        .reg-page-info {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .reg-page-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .reg-page-circle {
+            width: 60px; 
+            height: 60px; 
+            border: 2px solid #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 22px; 
+            color: #000;
+            outline: none; 
+            transition: 0.2s;
+        }
+        .reg-page-circle:focus {
+            background-color: rgba(246, 147, 29, 0.1);
+            border-color: var(--theme-primary);
+        }
+
+        /* STRICT TABLE LAYOUT */
+        .reg-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: 'Times New Roman', Times, serif;
+            table-layout: fixed; 
+        }
+
+        .reg-table th, .reg-table td {
+            border: 1.5px solid #000;
+            padding: 10px 12px;
+            vertical-align: top;
+            text-align: left;
+            word-wrap: break-word; 
+            overflow-wrap: break-word; 
+            word-break: break-word; 
+        }
+
+        .reg-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .reg-table tbody tr:hover {
+            background-color: rgba(246, 147, 29, 0.08);
+            cursor: pointer;
+        }
+
+        .reg-table th {
+            font-weight: bold;
+            font-size: 15px;
+            text-align: center;
+            background-color: transparent;
+        }
+
+        .reg-table td {
+            font-size: 15px; 
+            color: #1a1a1a;
+            line-height: 1.5;
+        }
+        
+        .reg-table td.center { text-align: center; }
+
+        /* Column Widths */
+        .reg-table th:nth-child(1) { width: 6%; }  /* SL NO */
+        .reg-table th:nth-child(2) { width: 22%; } /* Agency */
+        .reg-table th:nth-child(3) { width: 17%; } /* W/O NO */
+        .reg-table th:nth-child(4) { width: 20%; } /* e-NIT NO */
+        .reg-table th:nth-child(5) { width: 25%; } /* Name of work */
+        .reg-table th:nth-child(6) { width: 10%; } /* Remarks/Sign */
+
+        /* =========================================================
+           RESPONSIVE & PRINT QUERIES
+           ========================================================= */
+        @media (max-width: 1400px) { .document-wrapper { transform: scale(0.40); } }
+        @media (max-width: 1200px) {
+            .admin-dashboard-container { flex-direction: column; overflow: auto;}
+            .admin-sidebar { width: 100%; flex-direction: row; padding: 10px; overflow-x: auto;}
+            .sidebar-user { display: none; }
+            .sidebar-menu { flex-direction: row; width: 100%; }
+            .sidebar-menu li { flex: 0 0 auto; }
+            .admin-content { width: 100%; }
+            .document-wrapper { transform: scale(0.35); }
+        }
+        @media (max-width: 768px) {
+            .advanced-form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+            .btn-add { grid-column: span 1; }
+            .action-buttons { grid-column: span 1; }
+            .document-wrapper { transform: scale(0.25); }
+            .admin-preview { min-height: 500px; }
+        }
+        @media print {
+            body { background: #ffffff !important; padding: 0; margin: 0; overflow: visible;}
+            body::before { display: none !important; }
+            .top-bar, .header-main, .admin-sidebar, .admin-content, #login-screen { display: none !important; }
+            .admin-dashboard-container { display: block; padding: 0; margin: 0; }
+            .app-screen { display: none !important; }
+            .active-screen { display: block !important; opacity: 1;}
+            .admin-preview { border: none; background: transparent; padding: 0; display: block; box-shadow: none;}
+            .document-wrapper { transform: scale(1) !important; margin: 0 !important; display: block; padding: 0;}
+            .register-page { box-shadow: none !important; margin: 0 !important; page-break-after: avoid; height: 100%;}
+            .reg-table tbody tr:hover { background-color: transparent !important; }
+            @page { size: legal landscape; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div><i class="fa fa-envelope me-1"></i> tourism.psbzp@gmail.com <span class="mx-2">|</span> <i class="fa fa-phone me-1"></i> 0341-2252627</div>
+            <div class="d-flex align-items-center"><span class="fw-bold text-warning"><i class="fa fa-shield-alt me-1"></i> Secure ZP Admin Portal 6.0</span></div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="header-main shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="brand-left">
+                <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="Govt Logo" crossorigin="anonymous">
+                <div class="brand-titles">
+                    <h1>Paschim Bardhaman Zilla Parishad</h1>
+                    <h2>Official Engineering & Work Registry Portal</h2>
+                </div>
+            </div>
+            <div class="brand-right d-none d-md-block"> 
+                <div class="railway-style-link">
+                    <span class="dm-link-text">Admin / Staff<br>Authorized Access Only</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="app-screen active-screen">
+        <div class="login-box">
+            <img src="https://cgasansol.github.io/bunchlist/logo.png" class="login-logo" alt="Logo" crossorigin="anonymous">
+            <h2 style="color: var(--govt-navy); font-weight: 900; margin-bottom: 5px;">Admin Login</h2>
+            <p style="color: #64748b; font-weight: 600; margin-bottom: 30px; font-size: 14px;">Zilla Parishad IT Cell</p>
+            
+            <div class="form-floating-custom">
+                <i class="fa fa-user"></i>
+                <input type="text" id="auth-id" placeholder="Administrator ID">
+            </div>
+            <div class="form-floating-custom">
+                <i class="fa fa-lock"></i>
+                <input type="password" id="auth-pass" placeholder="Password">
+            </div>
+            
+            <div id="error-msg">Invalid ID or Password!</div>
+            
+            <button class="btn-gradient" onclick="verifyLogin()">Secure Login <i class="fa fa-arrow-right ms-2"></i></button>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="main-dashboard" class="app-screen">
+        <div class="admin-dashboard-container">
+            
+            <!-- SIDEBAR -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-user">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Admin">
+                    <h4>Admin User</h4>
+                    <p>Engineering Cell</p>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li class="active"><a href="javascript:void(0)"><i class="fa fa-book"></i> Work File Registry</a></li>
+                    <!-- Add more modules here if needed in future -->
+                    <li style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0; padding-top: 10px;" onclick="secureLogout()"><a href="javascript:void(0)" class="text-danger"><i class="fa fa-sign-out-alt"></i> Secure Logout</a></li>
+                </ul>
+            </aside>
+
+            <!-- LEFT: FORM CONTENT -->
+            <div class="admin-content">
+                <div class="section-header">
+                    <h2><i class="fa fa-edit text-warning"></i> Table Data Entry</h2>
+                    <span class="entry-badge" title="Total rows in table">Entries: <span id="entryCount">0</span> / 10</span>
+                </div>
+                
+                <div class="advanced-form-grid">
+                    
+                    <div class="form-group full-width">
+                        <label>Banch Number</label>
+                        <input type="text" id="inpPageNo" value="112" oninput="updatePageNo()">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>SL No.</label>
+                        <input type="text" id="inpSl" placeholder="e.g. 1177">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Agency / Contractor Name</label>
+                        <textarea id="inpAgency" placeholder="e.g. Prabhat Infra Buildcon Construction"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>W/O NO. & Date</label>
+                        <textarea id="inpWo" placeholder="e.g. PSBZP/WO/776 dtd/- 24.02.2026"></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>e-NIT NO. Details</label>
+                        <textarea id="inpEnit" placeholder="e.g. e-NIT No. 105 of 2025-2026. work sl No. 01"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Name of Work</label>
+                        <textarea id="inpWork" style="min-height: 80px;" placeholder="e.g. Repair & Installation of solar street light..."></textarea>
+                    </div>
+
+                    <button class="btn-add" onclick="addTableRow()"><i class="fa fa-plus"></i> Add Entry to Table</button>
+
+                    <div class="action-buttons">
+                        <button class="btn-action btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print Legal</button>
+                        <button class="btn-action btn-download" onclick="downloadDoc(this)"><i class="fa fa-image"></i> Save Image</button>
+                        <button class="btn-action btn-danger-outline" onclick="clearTable()"><i class="fa fa-trash-alt"></i> Clear All</button>
+                    </div>
+                    
+                    <div style="text-align: center; margin-top: 10px; font-size: 11px; color: var(--text-muted); grid-column: span 2;">
+                        <i class="fa-solid fa-circle-info" style="color: var(--theme-primary);"></i> Tip: Double-click any row in the table to delete it. Data auto-saves.
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: PREVIEW PANEL -->
+            <div class="admin-preview">
+                <div class="document-wrapper">
+                    
+                    <!-- ==========================================
+                         REGISTER PHYSICAL DOM 
+                         ========================================== -->
+                    <div class="register-page" id="registerNode">
+                        
+                        <!-- ZILLA PARISHAD OFFICIAL HEADER -->
+                        <div class="reg-official-header">
+                            <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="" class="reg-wb-logo" crossorigin="anonymous">
+                            <h1 class="zp-title">Paschim Bardhaman Zilla Parishad</h1>
+                            <h2 class="zp-subtitle">Engineer Section</h2>
+                        </div>
+
+                        <div class="reg-header-row">
+                            <div class="reg-title">List of work File</div>
+                            
+                            <!-- Banch Number & Circle -->
+                            <div class="reg-page-info">
+                                <span class="reg-page-label">Banch Number</span>
+                                <div class="reg-page-circle" id="outPageNo" contenteditable="true" onblur="syncBanchNumber(this)" title="Click to edit">112</div>
+                            </div>
+                        </div>
+
+                        <table class="reg-table">
+                            <thead>
+                                <tr>
+                                    <th>SL NO.</th>
+                                    <th>Name of Agency/Contractor</th>
+                                    <th>W/O NO.</th>
+                                    <th>e-NIT NO.</th>
+                                    <th>Name of work.</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Dynamic rows will appear here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ==========================================
+        // LOGIN LOGIC
+        // ==========================================
+        function verifyLogin() {
+            const id = document.getElementById('auth-id').value;
+            const pass = document.getElementById('auth-pass').value;
+            
+            // Credentials matching admin.html
+            if(id === 'PSBZP' && pass === 'Psbzp2017Asn') {
+                sessionStorage.setItem('regAuth', 'true');
+                executeLoginBypass();
+            } else {
+                document.getElementById('error-msg').style.display = 'block';
+            }
+        }
+
+        function executeLoginBypass() {
+            document.getElementById('error-msg').style.display = 'none';
+            document.getElementById('login-screen').classList.remove('active-screen');
+            document.getElementById('login-screen').style.display = 'none';
+            
+            const portal = document.getElementById('main-dashboard');
+            portal.style.display = 'flex';
+            portal.classList.add('active-screen');
+            
+            // Load saved data when portal opens
+            loadTableData();
+        }
+
+        function secureLogout() {
+            sessionStorage.removeItem('regAuth');
+            window.location.reload();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if(sessionStorage.getItem('regAuth') === 'true') {
+                executeLoginBypass();
+            }
+        });
+
+        // ==========================================
+        // TABLE & DATA LOGIC
+        // ==========================================
+        function updatePageNo() {
+            document.getElementById('outPageNo').innerText = document.getElementById('inpPageNo').value;
+            saveTableData();
+        }
+
+        function syncBanchNumber(element) {
+            document.getElementById('inpPageNo').value = element.innerText;
+            saveTableData();
+        }
+
+        function updateStats() {
+            const rowCount = document.querySelectorAll('#tableBody tr').length;
+            document.getElementById('entryCount').innerText = rowCount;
+        }
+
+        function addTableRow() {
+            const tbody = document.getElementById('tableBody');
+            const currentRowCount = tbody.querySelectorAll('tr').length;
+            
+            // Limit to 10 entries logic
+            if (currentRowCount >= 10) {
+                alert("Maximum 10 entries are allowed per page! Please save/print this page and clear the table to start a new one.");
+                return;
+            }
+
+            const sl = document.getElementById('inpSl').value;
+            const agency = document.getElementById('inpAgency').value.replace(/\n/g, '<br>');
+            const wo = document.getElementById('inpWo').value.replace(/\n/g, '<br>');
+            const enit = document.getElementById('inpEnit').value.replace(/\n/g, '<br>');
+            const work = document.getElementById('inpWork').value.replace(/\n/g, '<br>');
+
+            if (!sl && !agency && !wo && !enit && !work) {
+                alert("Please fill at least one field to add a row.");
+                return;
+            }
+
+            const tr = document.createElement('tr');
+            tr.setAttribute("ondblclick", "removeRow(this)");
+            tr.setAttribute("title", "Double-click to delete this row");
+
+            tr.innerHTML = `
+                <td class="center">${sl}</td>
+                <td>${agency}</td>
+                <td>${wo}</td>
+                <td>${enit}</td>
+                <td>${work}</td>
+                <td></td>
+            `;
+            tbody.appendChild(tr);
+
+            // Auto-increment SL No
+            if (sl && !isNaN(sl)) {
+                document.getElementById('inpSl').value = parseInt(sl) + 1;
+            } else {
+                document.getElementById('inpSl').value = '';
+            }
+
+            // Clear inputs
+            document.getElementById('inpAgency').value = '';
+            document.getElementById('inpWo').value = '';
+            document.getElementById('inpEnit').value = '';
+            document.getElementById('inpWork').value = '';
+            
+            document.getElementById('inpAgency').focus();
+            
+            // Save data locally
+            saveTableData();
+        }
+
+        function removeRow(row) {
+            if(confirm("Delete this row?")) {
+                row.remove();
+                saveTableData();
+            }
+        }
+
+        function clearTable() {
+            if(confirm("WARNING: This will clear all data in the table. Are you sure?")) {
+                document.getElementById('tableBody').innerHTML = '';
+                saveTableData();
+            }
+        }
+
+        // --- LOCAL STORAGE FUNCTIONS (AUTO-SAVE) ---
+        function saveTableData() {
+            const tbodyHtml = document.getElementById('tableBody').innerHTML;
+            const banchNo = document.getElementById('inpPageNo').value;
+            localStorage.setItem('zpTableData', tbodyHtml);
+            localStorage.setItem('zpBanchNo', banchNo);
+            updateStats();
+        }
+
+        function loadTableData() {
+            const savedData = localStorage.getItem('zpTableData');
+            const savedBanch = localStorage.getItem('zpBanchNo');
+            
+            if(savedData) {
+                document.getElementById('tableBody').innerHTML = savedData;
+            }
+            if(savedBanch) {
+                document.getElementById('inpPageNo').value = savedBanch;
+                document.getElementById('outPageNo').innerText = savedBanch;
+            }
+            updateStats();
+        }
+
+        // ==========================================
+        // DOWNLOAD IMAGE LOGIC
+        // ==========================================
+        function downloadDoc(btn) {
+            const formNode = document.getElementById('registerNode'); 
+            const wrapper = document.querySelector('.document-wrapper');
+            
+            // Scale up for HD capture
+            const originalTransform = wrapper.style.transform; 
+            wrapper.style.transform = "scale(1)";
+            void wrapper.offsetHeight; 
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                html2canvas(formNode, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    backgroundColor: "#ffffff",
+                    logging: false
+                }).then(canvas => {
+                    try {
+                        let link = document.createElement('a'); 
+                        let pageNo = document.getElementById('inpPageNo').value || "1";
+                        link.download = `Work_List_Banch_${pageNo}.png`;
+                        link.href = canvas.toDataURL("image/png"); 
+                        link.click();
+                    } catch (err) {
+                        alert("Error capturing image.");
+                        console.error(err);
+                    }
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            }, 600); 
+        }
+    </script>
+</body>
+</html>
