@@ -16,7 +16,7 @@
 
     <style>
         /* =========================================================
-           THEME VARIABLES (Paschim Bardhaman Theme)
+           THEME VARIABLES
            ========================================================= */
         :root {
             --theme-primary: #f6931d;
@@ -93,53 +93,166 @@
 
         .advanced-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .full-width { grid-column: span 2; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 800; color: #475569; font-size: 11.5px; text-transform: uppercase;}
-        .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--govt-navy); outline: none; transition: 0.3s; }
-        .form-group textarea { resize: vertical; min-height: 55px; }
-        .form-group input:focus, .form-group textarea:focus { border-color: var(--theme-primary); background: #fff; box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.1); }
         
+        /* Label & Mic Styling */
+        .form-group label { display: flex; align-items: center; margin-bottom: 6px; font-weight: 800; color: #475569; font-size: 11.5px; text-transform: uppercase;}
+        .btn-mic { background: none; border: none; color: var(--theme-primary); cursor: pointer; margin-left: 8px; font-size: 16px; transition: 0.3s; padding: 0; outline: none;}
+        .btn-mic:hover { color: var(--theme-dark-orange); transform: scale(1.1); }
+        .btn-mic.recording { color: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        .form-group input:not(.inline-input), .form-group textarea { width: 100%; padding: 12px 14px; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--govt-navy); outline: none; transition: 0.3s; }
+        .form-group textarea { resize: vertical; min-height: 55px; }
+        .form-group input:not(.inline-input):focus, .form-group textarea:focus { border-color: var(--theme-primary); background: #fff; box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.1); }
+        
+        /* Custom Composite Fields */
+        .composite-field {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 13.5px;
+        }
+        .composite-field .static-text {
+            color: #475569;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .composite-field input.inline-input, .composite-field select.inline-select {
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            outline: none;
+            background: #fff;
+            color: var(--govt-navy);
+        }
+        .composite-field input.inline-input:focus, .composite-field select.inline-select:focus {
+            border-color: var(--theme-primary);
+            box-shadow: 0 0 0 3px rgba(246, 147, 29, 0.1);
+        }
+
         .btn-add { background: rgba(246, 147, 29, 0.1); color: var(--theme-dark-orange); border: 1px solid var(--theme-primary); padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; grid-column: span 2;}
         .btn-add:hover { background: var(--theme-gradient); color: #fff; box-shadow: 0 5px 15px rgba(246, 147, 29, 0.3); transform: translateY(-2px); }
 
         .action-buttons { display: flex; gap: 10px; grid-column: span 2; margin-top: 10px; flex-direction: column;}
         .btn-action { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
         .btn-print { background: var(--govt-navy); color: #fff; }
-        .btn-print:hover { background: #020617; transform: translateY(-2px); box-shadow: 0 8px 15px rgba(15, 23, 42, 0.2);}
+        .btn-print-a4 { background: #0ea5e9; color: #fff; }
+        .btn-sample { background: #10b981; color: #fff; }
+        .btn-print:hover, .btn-print-a4:hover, .btn-sample:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);}
         .btn-download { background: var(--theme-gradient); color: #fff; }
         .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(246, 147, 29, 0.3);}
         .btn-danger-outline { background: transparent; color: #ef4444; border: 1px dashed #ef4444; }
         .btn-danger-outline:hover { background: #ef4444; color: #fff; }
 
-        /* PREVIEW SECTION & WRAPPERS (Right Panel) */
+        /* PREVIEW SECTION & WRAPPERS */
         .admin-preview { flex: 1; background: #cbd5e1; border-radius: 24px; padding: 20px; display: flex; justify-content: center; align-items: center; overflow: auto; position: relative; border: 2px dashed #94a3b8; box-shadow: inset 0 0 20px rgba(0,0,0,0.05);}
         .document-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px; transform-origin: center center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.48);}
 
         /* =========================================================
-           OFFICIAL REGISTER PAGE STRUCTURE (LEGAL LANDSCAPE)
+           OFFICIAL REGISTER PAGE STRUCTURE (LEGAL)
            ========================================================= */
         .register-page { 
             width: 356mm; 
             min-height: 216mm; 
             background: #ffffff;
             color: #000000;
-            padding: 20mm;
+            padding: 15mm; 
             position: relative;
             box-sizing: border-box;
             box-shadow: 0 25px 60px rgba(0,0,0,0.5);
             font-family: 'Times New Roman', Times, serif; 
+            transition: all 0.3s ease;
         }
 
+        /* IMAGE WATERMARK */
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 480px; 
+            height: auto;
+            opacity: 0.06; 
+            pointer-events: none; 
+            z-index: 0;
+            user-select: none;
+        }
+
+        /* =========================================================
+           STRICT 1 PAGE A4 MODIFICATIONS (EQUAL 4-SIDE MARGIN & PERFECT STRETCH)
+           ========================================================= */
+        .register-page.a4-size {
+            width: 297mm !important;
+            height: 209mm !important; /* Extremely safe height to block 2nd page */
+            max-height: 209mm !important;
+            padding: 10mm !important; /* 4-SIDE EQUAL GAP (Top, Bottom, Left, Right) */
+            overflow: hidden !important; 
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important; /* Stack vertically to enable stretch */
+        }
+        
+        .register-page.a4-size .watermark {
+            width: 300px !important;
+        }
+
+        /* Header fixed sizes for A4 */
+        .register-page.a4-size .reg-official-header { min-height: 40px !important; margin-bottom: 5px !important; padding-bottom: 3px !important; flex-shrink: 0 !important; }
+        .register-page.a4-size .reg-wb-logo { height: 45px !important; }
+        .register-page.a4-size .zp-title { font-size: 22px !important; margin-bottom: 1px !important; }
+        .register-page.a4-size .zp-subtitle { font-size: 15px !important; }
+        .register-page.a4-size .reg-header-row { margin-bottom: 5px !important; flex-shrink: 0 !important; }
+        .register-page.a4-size .reg-title { font-size: 18px !important; }
+        .register-page.a4-size .reg-page-circle { width: 35px !important; height: 35px !important; font-size: 14px !important; border-width: 1.5px !important;}
+        .register-page.a4-size .reg-page-label { font-size: 14px !important; }
+        
+        /* 
+           Table stretches to fill the EXACT remaining gap. 
+           This connects perfectly to the 10mm bottom margin! 
+        */
+        .register-page.a4-size .reg-table {
+            flex-grow: 1 !important; 
+            height: 100% !important; /* Force table to touch the bottom boundary */
+            width: 100% !important;
+        }
+        
+        .register-page.a4-size .reg-table th, 
+        .register-page.a4-size .reg-table td {
+            padding: 4px 6px !important; 
+            font-size: 13px !important; 
+            line-height: 1.3 !important;
+        }
+
+        .register-page.a4-size .reg-table tbody tr {
+            height: 10% !important; /* Browser evenly divides 100% height among 10 rows */
+        }
+
+        .register-page.a4-size .reg-table tbody td {
+            vertical-align: top !important;
+        }
+
+        /* Standard CSS cont... */
         .reg-official-header {
             position: relative;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 12px; 
             border-bottom: 3px double #000;
-            padding-bottom: 12px;
+            padding-bottom: 8px; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 95px;
+            min-height: 70px; 
+            z-index: 1; 
         }
 
         .reg-wb-logo {
@@ -147,28 +260,28 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            height: 85px; 
+            height: 60px; 
             width: auto;
-            margin-top: -6px;
+            margin-top: -4px;
             z-index: 5;
         }
 
         .zp-title {
-            font-size: 32px;
+            font-size: 26px; 
             font-weight: 900;
             color: #000;
             text-transform: uppercase;
-            margin: 0 0 8px 0;
-            letter-spacing: 1.5px;
+            margin: 0 0 4px 0;
+            letter-spacing: 1.2px;
             font-family: 'Times New Roman', Times, serif;
         }
         .zp-subtitle {
-            font-size: 22px;
+            font-size: 18px; 
             font-weight: bold;
             color: #222;
             margin: 0;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
             font-family: 'Times New Roman', Times, serif;
         }
 
@@ -177,11 +290,12 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            margin-bottom: 25px;
+            margin-bottom: 15px; 
+            z-index: 1;
         }
 
         .reg-title {
-            font-size: 26px;
+            font-size: 22px; 
             font-weight: bold;
             color: #1a1a1a;
             text-transform: capitalize;
@@ -196,45 +310,44 @@
             transform: translateY(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .reg-page-label {
-            font-size: 20px;
+            font-size: 16px; 
             font-weight: bold;
             color: #000;
         }
 
         .reg-page-circle {
-            width: 60px; 
-            height: 60px; 
+            width: 45px; 
+            height: 45px; 
             border: 2px solid #000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 22px; 
+            font-size: 18px; 
             color: #000;
             outline: none; 
             transition: 0.2s;
-        }
-        .reg-page-circle:focus {
-            background-color: rgba(246, 147, 29, 0.1);
-            border-color: var(--theme-primary);
+            background: transparent;
         }
 
-        /* STRICT TABLE LAYOUT */
+        /* TABLE LAYOUT */
         .reg-table {
             width: 100%;
             border-collapse: collapse;
             font-family: 'Times New Roman', Times, serif;
             table-layout: fixed; 
+            position: relative;
+            z-index: 1; 
         }
 
         .reg-table th, .reg-table td {
             border: 1.5px solid #000;
-            padding: 10px 12px;
+            padding: 6px 8px; 
             vertical-align: top;
             text-align: left;
             word-wrap: break-word; 
@@ -242,76 +355,34 @@
             word-break: break-word; 
         }
 
-        .reg-table tbody tr {
-            transition: background-color 0.2s;
-        }
-        .reg-table tbody tr:hover {
-            background-color: rgba(246, 147, 29, 0.08);
-            cursor: pointer;
-        }
-
-        .reg-table th {
-            font-weight: bold;
-            font-size: 15px;
-            text-align: center;
-            background-color: transparent;
-        }
-
-        .reg-table td {
-            font-size: 15px; 
-            color: #1a1a1a;
-            line-height: 1.5;
-        }
-        
+        .reg-table th { font-weight: bold; font-size: 14px; text-align: center; }
+        .reg-table td { font-size: 14px; color: #1a1a1a; line-height: 1.4; }
         .reg-table td.center { text-align: center; }
 
-        /* Column Widths */
-        .reg-table th:nth-child(1) { width: 6%; }  /* SL NO */
-        .reg-table th:nth-child(2) { width: 22%; } /* Agency */
-        .reg-table th:nth-child(3) { width: 17%; } /* W/O NO */
-        .reg-table th:nth-child(4) { width: 20%; } /* e-NIT NO */
-        .reg-table th:nth-child(5) { width: 25%; } /* Name of work */
-        .reg-table th:nth-child(6) { width: 10%; } /* Remarks/Sign */
+        .reg-table th:nth-child(1) { width: 6%; }  
+        .reg-table th:nth-child(2) { width: 22%; } 
+        .reg-table th:nth-child(3) { width: 17%; } 
+        .reg-table th:nth-child(4) { width: 20%; } 
+        .reg-table th:nth-child(5) { width: 25%; } 
+        .reg-table th:nth-child(6) { width: 10%; } 
 
-        /* =========================================================
-           RESPONSIVE & PRINT QUERIES
-           ========================================================= */
         @media (max-width: 1400px) { .document-wrapper { transform: scale(0.40); } }
-        @media (max-width: 1200px) {
-            .admin-dashboard-container { flex-direction: column; overflow: auto;}
-            .admin-sidebar { width: 100%; flex-direction: row; padding: 10px; overflow-x: auto;}
-            .sidebar-user { display: none; }
-            .sidebar-menu { flex-direction: row; width: 100%; }
-            .sidebar-menu li { flex: 0 0 auto; }
-            .admin-content { width: 100%; }
-            .document-wrapper { transform: scale(0.35); }
-        }
-        @media (max-width: 768px) {
-            .advanced-form-grid { grid-template-columns: 1fr; }
-            .full-width { grid-column: span 1; }
-            .btn-add { grid-column: span 1; }
-            .action-buttons { grid-column: span 1; }
-            .document-wrapper { transform: scale(0.25); }
-            .admin-preview { min-height: 500px; }
-        }
+        
+        /* GLOBAL STRICT PRINT RULES */
         @media print {
-            body { background: #ffffff !important; padding: 0; margin: 0; overflow: visible;}
-            body::before { display: none !important; }
+            html, body { width: 100% !important; height: 100% !important; background: #ffffff !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important; box-sizing: border-box !important; }
             .top-bar, .header-main, .admin-sidebar, .admin-content, #login-screen { display: none !important; }
             .admin-dashboard-container { display: block; padding: 0; margin: 0; }
             .app-screen { display: none !important; }
             .active-screen { display: block !important; opacity: 1;}
             .admin-preview { border: none; background: transparent; padding: 0; display: block; box-shadow: none;}
             .document-wrapper { transform: scale(1) !important; margin: 0 !important; display: block; padding: 0;}
-            .register-page { box-shadow: none !important; margin: 0 !important; page-break-after: avoid; height: 100%;}
-            .reg-table tbody tr:hover { background-color: transparent !important; }
-            @page { size: legal landscape; margin: 0; }
+            .register-page { box-shadow: none !important; margin: 0 auto !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP BAR -->
     <div class="top-bar">
         <div class="container d-flex justify-content-between align-items-center">
             <div><i class="fa fa-envelope me-1"></i> tourism.psbzp@gmail.com <span class="mx-2">|</span> <i class="fa fa-phone me-1"></i> 0341-2252627</div>
@@ -319,7 +390,6 @@
         </div>
     </div>
 
-    <!-- HEADER -->
     <header class="header-main shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="brand-left">
@@ -337,7 +407,6 @@
         </div>
     </header>
 
-    <!-- LOGIN SCREEN -->
     <div id="login-screen" class="app-screen active-screen">
         <div class="login-box">
             <img src="https://cgasansol.github.io/bunchlist/logo.png" class="login-logo" alt="Logo" crossorigin="anonymous">
@@ -353,17 +422,15 @@
                 <input type="password" id="auth-pass" placeholder="Password">
             </div>
             
-            <div id="error-msg">Invalid ID or Password!</div>
+            <div id="error-msg" style="display:none; color:red; margin-bottom:10px;">Invalid ID or Password!</div>
             
             <button class="btn-gradient" onclick="verifyLogin()">Secure Login <i class="fa fa-arrow-right ms-2"></i></button>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
     <div id="main-dashboard" class="app-screen">
         <div class="admin-dashboard-container">
             
-            <!-- SIDEBAR -->
             <aside class="admin-sidebar">
                 <div class="sidebar-user">
                     <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Admin">
@@ -373,12 +440,10 @@
                 
                 <ul class="sidebar-menu">
                     <li class="active"><a href="javascript:void(0)"><i class="fa fa-book"></i> Work File Registry</a></li>
-                    <!-- Add more modules here if needed in future -->
                     <li style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0; padding-top: 10px;" onclick="secureLogout()"><a href="javascript:void(0)" class="text-danger"><i class="fa fa-sign-out-alt"></i> Secure Logout</a></li>
                 </ul>
             </aside>
 
-            <!-- LEFT: FORM CONTENT -->
             <div class="admin-content">
                 <div class="section-header">
                     <h2><i class="fa fa-edit text-warning"></i> Table Data Entry</h2>
@@ -386,7 +451,6 @@
                 </div>
                 
                 <div class="advanced-form-grid">
-                    
                     <div class="form-group full-width">
                         <label>Banch Number</label>
                         <input type="text" id="inpPageNo" value="112" oninput="updatePageNo()">
@@ -397,36 +461,68 @@
                         <input type="text" id="inpSl" placeholder="e.g. 1177">
                     </div>
                     
+                    <!-- Agency with Mic Button -->
                     <div class="form-group full-width">
-                        <label>Agency / Contractor Name</label>
+                        <label>Agency / Contractor Name 
+                            <button type="button" class="btn-mic" onclick="startVoiceTyping('inpAgency', this)" title="Click and speak">
+                                <i class="fa fa-microphone"></i>
+                            </button>
+                        </label>
                         <textarea id="inpAgency" placeholder="e.g. Prabhat Infra Buildcon Construction"></textarea>
                     </div>
 
                     <div class="form-group full-width">
                         <label>W/O NO. & Date</label>
-                        <textarea id="inpWo" placeholder="e.g. PSBZP/WO/776 dtd/- 24.02.2026"></textarea>
+                        <div class="composite-field">
+                            <span class="static-text">PSBZP/WO/</span>
+                            <input type="text" class="inline-input" id="inpWoNum" placeholder="776" style="width: 70px;">
+                            <span class="static-text">dtd/-</span>
+                            <input type="text" class="inline-input" id="inpWoDate" placeholder="24.02.2026" style="flex: 1;">
+                        </div>
                     </div>
                     
                     <div class="form-group full-width">
                         <label>e-NIT NO. Details</label>
-                        <textarea id="inpEnit" placeholder="e.g. e-NIT No. 105 of 2025-2026. work sl No. 01"></textarea>
+                        <div class="composite-field">
+                            <span class="static-text">e-NIT No.</span>
+                            <input type="text" class="inline-input" id="inpEnitNum" placeholder="105" style="width: 65px;">
+                            <span class="static-text">of</span>
+                            <select id="inpEnitYear" class="inline-select">
+                                <option value="2016-2017">2016-2017</option>
+                                <option value="2017-2018">2017-2018</option>
+                                <option value="2018-2019">2018-2019</option>
+                                <option value="2019-2020">2019-2020</option>
+                                <option value="2020-2021">2020-2021</option>
+                                <option value="2021-2022">2021-2022</option>
+                                <option value="2022-2023">2022-2023</option>
+                                <option value="2023-2024">2023-2024</option>
+                                <option value="2024-2025">2024-2025</option>
+                                <option value="2025-2026" selected>2025-2026</option>
+                                <option value="2026-2027">2026-2027</option>
+                            </select>
+                            <span class="static-text" style="width:100%; margin-top:4px;">Work Sl No.</span>
+                            <input type="text" class="inline-input" id="inpEnitSl" placeholder="01" style="flex: 1;">
+                        </div>
                     </div>
 
+                    <!-- Work Name with Mic Button -->
                     <div class="form-group full-width">
-                        <label>Name of Work</label>
+                        <label>Name of Work
+                            <button type="button" class="btn-mic" onclick="startVoiceTyping('inpWork', this)" title="Click and speak">
+                                <i class="fa fa-microphone"></i>
+                            </button>
+                        </label>
                         <textarea id="inpWork" style="min-height: 80px;" placeholder="e.g. Repair & Installation of solar street light..."></textarea>
                     </div>
 
                     <button class="btn-add" onclick="addTableRow()"><i class="fa fa-plus"></i> Add Entry to Table</button>
 
                     <div class="action-buttons">
-                        <button class="btn-action btn-print" onclick="window.print()"><i class="fa fa-print"></i> Print Legal</button>
+                        <button class="btn-action btn-print" onclick="printLegal()"><i class="fa fa-print"></i> Print Legal</button>
+                        <button class="btn-action btn-print-a4" onclick="printA4()"><i class="fa fa-file-pdf"></i> Print A4 (STRICT 1 PAGE)</button>
+                        <button class="btn-action btn-sample" onclick="fillSampleData()"><i class="fa fa-magic"></i> Fill Sample</button>
                         <button class="btn-action btn-download" onclick="downloadDoc(this)"><i class="fa fa-image"></i> Save Image</button>
                         <button class="btn-action btn-danger-outline" onclick="clearTable()"><i class="fa fa-trash-alt"></i> Clear All</button>
-                    </div>
-                    
-                    <div style="text-align: center; margin-top: 10px; font-size: 11px; color: var(--text-muted); grid-column: span 2;">
-                        <i class="fa-solid fa-circle-info" style="color: var(--theme-primary);"></i> Tip: Double-click any row in the table to delete it. Data auto-saves.
                     </div>
                 </div>
             </div>
@@ -435,12 +531,10 @@
             <div class="admin-preview">
                 <div class="document-wrapper">
                     
-                    <!-- ==========================================
-                         REGISTER PHYSICAL DOM 
-                         ========================================== -->
                     <div class="register-page" id="registerNode">
-                        
-                        <!-- ZILLA PARISHAD OFFICIAL HEADER -->
+                        <!-- IMAGE WATERMARK -->
+                        <img src="https://cgasansol.github.io/bunchlist/logo.png" class="watermark" alt="Govt Watermark" crossorigin="anonymous">
+
                         <div class="reg-official-header">
                             <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="" class="reg-wb-logo" crossorigin="anonymous">
                             <h1 class="zp-title">Paschim Bardhaman Zilla Parishad</h1>
@@ -449,8 +543,6 @@
 
                         <div class="reg-header-row">
                             <div class="reg-title">List of work File</div>
-                            
-                            <!-- Banch Number & Circle -->
                             <div class="reg-page-info">
                                 <span class="reg-page-label">Banch Number</span>
                                 <div class="reg-page-circle" id="outPageNo" contenteditable="true" onblur="syncBanchNumber(this)" title="Click to edit">112</div>
@@ -468,9 +560,7 @@
                                     <th>Remarks</th>
                                 </tr>
                             </thead>
-                            <tbody id="tableBody">
-                                <!-- Dynamic rows will appear here -->
-                            </tbody>
+                            <tbody id="tableBody"></tbody>
                         </table>
                     </div>
 
@@ -482,6 +572,58 @@
 
     <!-- SCRIPTS -->
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            setPrintPageSize('Legal');
+            if(sessionStorage.getItem('regAuth') === 'true') {
+                executeLoginBypass();
+            }
+        });
+
+        // ==========================================
+        // VOICE TYPING (WEB SPEECH API)
+        // ==========================================
+        function startVoiceTyping(targetId, btnElement) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert("Your browser does not support Voice Typing. Please use Google Chrome or Microsoft Edge.");
+                return;
+            }
+
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-IN'; 
+
+            recognition.onstart = function() {
+                btnElement.classList.add('recording');
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                
+                // Formating: First Letter Capital, rest small (Sentence case)
+                transcript = transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase();
+                
+                document.getElementById(targetId).value = transcript;
+                btnElement.classList.remove('recording');
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error", event.error);
+                btnElement.classList.remove('recording');
+                if(event.error === 'not-allowed') {
+                    alert("Microphone access denied. Please allow microphone permissions in your browser.");
+                }
+            };
+
+            recognition.onend = function() {
+                btnElement.classList.remove('recording');
+            };
+
+            recognition.start();
+        }
+
         // ==========================================
         // LOGIN LOGIC
         // ==========================================
@@ -489,7 +631,6 @@
             const id = document.getElementById('auth-id').value;
             const pass = document.getElementById('auth-pass').value;
             
-            // Credentials matching admin.html
             if(id === 'PSBZP' && pass === 'Psbzp2017Asn') {
                 sessionStorage.setItem('regAuth', 'true');
                 executeLoginBypass();
@@ -507,7 +648,6 @@
             portal.style.display = 'flex';
             portal.classList.add('active-screen');
             
-            // Load saved data when portal opens
             loadTableData();
         }
 
@@ -516,15 +656,6 @@
             window.location.reload();
         }
 
-        document.addEventListener("DOMContentLoaded", () => {
-            if(sessionStorage.getItem('regAuth') === 'true') {
-                executeLoginBypass();
-            }
-        });
-
-        // ==========================================
-        // TABLE & DATA LOGIC
-        // ==========================================
         function updatePageNo() {
             document.getElementById('outPageNo').innerText = document.getElementById('inpPageNo').value;
             saveTableData();
@@ -544,7 +675,6 @@
             const tbody = document.getElementById('tableBody');
             const currentRowCount = tbody.querySelectorAll('tr').length;
             
-            // Limit to 10 entries logic
             if (currentRowCount >= 10) {
                 alert("Maximum 10 entries are allowed per page! Please save/print this page and clear the table to start a new one.");
                 return;
@@ -552,9 +682,24 @@
 
             const sl = document.getElementById('inpSl').value;
             const agency = document.getElementById('inpAgency').value.replace(/\n/g, '<br>');
-            const wo = document.getElementById('inpWo').value.replace(/\n/g, '<br>');
-            const enit = document.getElementById('inpEnit').value.replace(/\n/g, '<br>');
             const work = document.getElementById('inpWork').value.replace(/\n/g, '<br>');
+
+            let wo = '';
+            const woNum = document.getElementById('inpWoNum').value;
+            const woDate = document.getElementById('inpWoDate').value;
+            if(woNum || woDate) {
+                wo = `PSBZP/WO/${woNum}`;
+                if(woDate) wo += `<br>dtd/- ${woDate}`;
+            }
+
+            let enit = '';
+            const enitNum = document.getElementById('inpEnitNum').value;
+            const enitYear = document.getElementById('inpEnitYear').value;
+            const enitSl = document.getElementById('inpEnitSl').value;
+            if(enitNum) {
+                enit = `e-NIT No. ${enitNum} of ${enitYear}.`;
+                if(enitSl) enit += ` Work Sl No. ${enitSl}`;
+            }
 
             if (!sl && !agency && !wo && !enit && !work) {
                 alert("Please fill at least one field to add a row.");
@@ -575,22 +720,47 @@
             `;
             tbody.appendChild(tr);
 
-            // Auto-increment SL No
             if (sl && !isNaN(sl)) {
                 document.getElementById('inpSl').value = parseInt(sl) + 1;
             } else {
                 document.getElementById('inpSl').value = '';
             }
 
-            // Clear inputs
             document.getElementById('inpAgency').value = '';
-            document.getElementById('inpWo').value = '';
-            document.getElementById('inpEnit').value = '';
+            document.getElementById('inpWoNum').value = '';
+            document.getElementById('inpWoDate').value = '';
+            document.getElementById('inpEnitNum').value = '';
+            document.getElementById('inpEnitSl').value = '';
             document.getElementById('inpWork').value = '';
             
             document.getElementById('inpAgency').focus();
             
-            // Save data locally
+            saveTableData();
+        }
+
+        function fillSampleData() {
+            if(!confirm("This will clear your current table and fill it with 10 sample entries. Continue?")) return;
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = ''; 
+            
+            let startSl = 101;
+            let sampleHtml = '';
+            
+            for(let i=1; i<=10; i++) {
+                sampleHtml += `
+                <tr ondblclick="removeRow(this)" title="Double-click to delete this row">
+                    <td class="center">${startSl++}</td>
+                    <td>Sample Contractor & Infra Co. 0${i}</td>
+                    <td>PSBZP/WO/100${i}<br>dtd/- 15.03.2026</td>
+                    <td>e-NIT No. 10${i} of 2025-2026.<br>Work Sl No. 0${i}</td>
+                    <td>Construction and maintenance of rural pipeline network setup at Paschim Bardhaman Block ${i}.</td>
+                    <td></td>
+                </tr>`;
+            }
+            
+            tbody.innerHTML = sampleHtml;
+            document.getElementById('inpSl').value = startSl;
             saveTableData();
         }
 
@@ -603,12 +773,12 @@
 
         function clearTable() {
             if(confirm("WARNING: This will clear all data in the table. Are you sure?")) {
-                document.getElementById('tableBody').innerHTML = '';
+                document.getElementById('tableBody').innerHTML = ''; 
+                document.getElementById('inpSl').value = ''; 
                 saveTableData();
             }
         }
 
-        // --- LOCAL STORAGE FUNCTIONS (AUTO-SAVE) ---
         function saveTableData() {
             const tbodyHtml = document.getElementById('tableBody').innerHTML;
             const banchNo = document.getElementById('inpPageNo').value;
@@ -632,13 +802,50 @@
         }
 
         // ==========================================
-        // DOWNLOAD IMAGE LOGIC
+        // DYNAMIC STRICT PRINT LOGIC
         // ==========================================
+        function setPrintPageSize(type) {
+            let style = document.getElementById('dynamic-print-style');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'dynamic-print-style';
+                document.head.appendChild(style);
+            }
+            
+            let pageCss = '';
+            if(type === 'A4') {
+                pageCss = '@page { size: A4 landscape !important; margin: 0mm !important; }';
+            } else {
+                pageCss = '@page { size: legal landscape !important; margin: 0mm !important; }';
+            }
+
+            style.innerHTML = `@media print { 
+                ${pageCss}
+                html, body { overflow: hidden !important; height: 100vh !important; }
+            }`;
+        }
+
+        function printLegal() {
+            setPrintPageSize('Legal');
+            document.getElementById('registerNode').classList.remove('a4-size');
+            window.print();
+        }
+
+        function printA4() {
+            setPrintPageSize('A4');
+            document.getElementById('registerNode').classList.add('a4-size');
+            window.print();
+            
+            setTimeout(() => {
+                document.getElementById('registerNode').classList.remove('a4-size');
+                setPrintPageSize('Legal');
+            }, 1000);
+        }
+
         function downloadDoc(btn) {
             const formNode = document.getElementById('registerNode'); 
             const wrapper = document.querySelector('.document-wrapper');
             
-            // Scale up for HD capture
             const originalTransform = wrapper.style.transform; 
             wrapper.style.transform = "scale(1)";
             void wrapper.offsetHeight; 
