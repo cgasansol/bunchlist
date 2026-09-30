@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Admin Portal - ZP Work Registry</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        /* =========================================================
+           THEME VARIABLES
+           ========================================================= */
+        :root {
+            --theme-primary: #f6931d;
+            --theme-dark-orange: #d97706;
+            --theme-gradient: linear-gradient(135deg, #ffb23f 0%, #f6931d 100%);
+            --govt-navy: #0f172a;
+            --bg-light: #f4f7f6;
+            --text-main: #1e293b;
+            --border-light: #e2e8f0;
+            --card-bg: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --card-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        }
+
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-light); color: var(--text-main); margin: 0; overflow-x: hidden; height: 100vh; display: flex; flex-direction: column;}
+        h1, h2, h3, h4, h5, h6 { font-family: 'Outfit', sans-serif; }
+
+        /* HEADER & TOP BAR */
+        .top-bar { background-color: #020617; color: #cbd5e1; padding: 10px 0; font-size: 13.5px; font-weight: 500; flex-shrink: 0;}
+        .header-main { background: var(--card-bg); padding: 15px 0; border-bottom: 2px solid var(--theme-primary); position: relative; z-index: 10; flex-shrink: 0;}
+        .brand-left { display: flex; align-items: center; gap: 15px; }
+        .brand-left img { height: 65px; width: 65px; object-fit: contain; }
+        .brand-titles h1 { font-size: 24px; font-weight: 900; color: var(--govt-navy); margin: 0; line-height: 1.1; }
+        .brand-titles h2 { font-size: 13px; font-weight: 700; color: var(--theme-primary); margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px;}
+        .railway-style-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px dashed var(--theme-primary); border-radius: 8px; background: rgba(246, 147, 29, 0.05);}
+        .dm-link-text { color: var(--govt-navy); font-size: 11px; font-weight: 800; text-align: right; text-transform: uppercase; }
+
+        /* SCREENS & ANIMATIONS */
+        .app-screen { display: none; opacity: 0; transition: opacity 0.4s ease; flex: 1;} 
+        .active-screen { display: flex; opacity: 1; animation: fadeIn 0.4s ease forwards;}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* LOGIN SCREEN */
+        #login-screen { align-items: center; justify-content: center; background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1920&q=80') center/cover; position: relative;}
+        #login-screen::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); z-index: 1; }
+        .login-box { background: var(--glass-bg); backdrop-filter: blur(15px); padding: 50px 40px; border-radius: 24px; text-align: center; width: 100%; max-width: 450px; z-index: 2; border: 1px solid var(--glass-border); box-shadow: 0 30px 60px rgba(0,0,0,0.4); border-top: 8px solid var(--theme-primary);}
+        .login-logo { height: 90px; width: 90px; object-fit: contain; margin-bottom: 20px; }
+        .form-floating-custom { position: relative; margin-bottom: 20px; text-align: left; }
+        .form-floating-custom i { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: #64748b; font-size: 18px; }
+        .form-floating-custom input { width: 100%; padding: 15px 15px 15px 45px; background: #fff; border: 1px solid var(--border-light); border-radius: 12px; font-weight: 600; font-size: 15px; outline: none; color: var(--govt-navy);}
+        .form-floating-custom input:focus { border-color: var(--theme-primary); box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.15); }
+        .btn-gradient { background: var(--theme-gradient); color: #fff; font-weight: 800; padding: 15px; border: none; border-radius: 12px; text-transform: uppercase; width: 100%; font-size: 16px; transition: 0.3s;}
+        .btn-gradient:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(246, 147, 29, 0.4); }
+
+        /* DASHBOARD LAYOUT */
+        .admin-dashboard-container { display: flex; width: 100%; max-width: 1800px; margin: 0 auto; padding: 20px; gap: 20px; flex: 1; overflow: hidden;}
+        
+        /* SIDEBAR */
+        .admin-sidebar { width: 280px; background: var(--govt-navy); border-radius: 24px; padding: 20px; display: flex; flex-direction: column; flex-shrink: 0; box-shadow: var(--card-shadow); overflow-y: auto;}
+        .admin-sidebar::-webkit-scrollbar { width: 4px; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: var(--theme-primary); border-radius: 10px; }
+
+        .sidebar-user { text-align: center; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px;}
+        .sidebar-user img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--theme-primary); margin-bottom: 10px; object-fit: cover;}
+        .sidebar-user h4 { color: #fff; font-size: 16px; margin: 0; }
+        .sidebar-user p { color: #94a3b8; font-size: 12px; margin: 0; font-weight: bold; text-transform: uppercase;}
+        
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;}
+        .sidebar-menu li { background: rgba(255,255,255,0.05); border-radius: 12px; transition: 0.3s; cursor: pointer; border: 1px solid transparent;}
+        .sidebar-menu li a { display: flex; align-items: center; padding: 12px 15px; color: #cbd5e1; text-decoration: none; font-weight: 700; font-size: 13px; gap: 15px;}
+        .sidebar-menu li i { font-size: 16px; width: 25px; text-align: center;}
+        .sidebar-menu li:hover, .sidebar-menu li.active { background: var(--theme-gradient); border-color: var(--theme-primary); transform: translateX(5px); box-shadow: 0 5px 15px rgba(246, 147, 29, 0.2);}
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: #fff; }
+        
+        /* FORM CONTENT (Left Panel) */
+        .admin-content { width: 400px; display: flex; flex-direction: column; background: var(--card-bg); border-radius: 24px; padding: 25px; border: 1px solid var(--border-light); overflow-y: auto; box-shadow: var(--card-shadow); flex-shrink: 0;}
+        .admin-content::-webkit-scrollbar { width: 6px; }
+        .admin-content::-webkit-scrollbar-thumb { background: var(--theme-primary); border-radius: 10px; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed var(--border-light); padding-bottom: 15px; margin-bottom: 25px; }
+        .section-header h2 { color: var(--govt-navy); font-size: 20px; margin: 0; font-weight: 900; display: flex; align-items: center; gap: 10px;}
+        .entry-badge { background: rgba(246, 147, 29, 0.15); color: var(--theme-dark-orange); border: 1px solid rgba(246, 147, 29, 0.3); font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+
+        .advanced-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        /* Label & Mic Styling */
+        .form-group label { display: flex; align-items: center; margin-bottom: 6px; font-weight: 800; color: #475569; font-size: 11.5px; text-transform: uppercase;}
+        .btn-mic { background: none; border: none; color: var(--theme-primary); cursor: pointer; margin-left: 8px; font-size: 16px; transition: 0.3s; padding: 0; outline: none;}
+        .btn-mic:hover { color: var(--theme-dark-orange); transform: scale(1.1); }
+        .btn-mic.recording { color: #ef4444; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        .form-group input:not(.inline-input), .form-group textarea { width: 100%; padding: 12px 14px; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 10px; font-size: 13.5px; font-weight: 600; color: var(--govt-navy); outline: none; transition: 0.3s; }
+        .form-group textarea { resize: vertical; min-height: 55px; }
+        .form-group input:not(.inline-input):focus, .form-group textarea:focus { border-color: var(--theme-primary); background: #fff; box-shadow: 0 0 0 4px rgba(246, 147, 29, 0.1); }
+        
+        /* Custom Composite Fields */
+        .composite-field { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 10px; padding: 8px 12px; font-size: 13.5px; }
+        .composite-field .static-text { color: #475569; font-weight: 800; white-space: nowrap; }
+        .composite-field input.inline-input, .composite-field select.inline-select { border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; font-size: 13.5px; font-weight: 700; outline: none; background: #fff; color: var(--govt-navy); }
+        .composite-field input.inline-input:focus, .composite-field select.inline-select:focus { border-color: var(--theme-primary); box-shadow: 0 0 0 3px rgba(246, 147, 29, 0.1); }
+
+        .btn-add { background: rgba(246, 147, 29, 0.1); color: var(--theme-dark-orange); border: 1px solid var(--theme-primary); padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; grid-column: span 2;}
+        .btn-add:hover { background: var(--theme-gradient); color: #fff; box-shadow: 0 5px 15px rgba(246, 147, 29, 0.3); transform: translateY(-2px); }
+
+        .action-buttons { display: flex; gap: 10px; grid-column: span 2; margin-top: 10px; flex-direction: column;}
+        .btn-action { width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; text-transform: uppercase; cursor: pointer; transition: 0.3s; }
+        .btn-print { background: var(--govt-navy); color: #fff; }
+        .btn-print-a4 { background: #0ea5e9; color: #fff; }
+        .btn-sample { background: #10b981; color: #fff; }
+        .btn-print:hover, .btn-print-a4:hover, .btn-sample:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);}
+        .btn-download { background: var(--theme-gradient); color: #fff; }
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(246, 147, 29, 0.3);}
+        .btn-danger-outline { background: transparent; color: #ef4444; border: 1px dashed #ef4444; }
+        .btn-danger-outline:hover { background: #ef4444; color: #fff; }
+
+        /* PREVIEW SECTION & WRAPPERS */
+        .admin-preview { flex: 1; background: #cbd5e1; border-radius: 24px; padding: 20px; display: flex; justify-content: center; align-items: center; overflow: auto; position: relative; border: 2px dashed #94a3b8; box-shadow: inset 0 0 20px rgba(0,0,0,0.05);}
+        .document-wrapper { display: flex; justify-content: center; align-items: center; padding: 20px; transform-origin: center center; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.48);}
+
+        /* ZOOM CONTROLS */
+        .zoom-controls { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 50; }
+        .zoom-controls button { background: var(--govt-navy); color: #fff; border: none; border-radius: 8px; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .zoom-controls button:hover { background: var(--theme-primary); transform: translateY(-2px); }
+
+        /* =========================================================
+           OFFICIAL REGISTER PAGE STRUCTURE (LEGAL)
+           ========================================================= */
+        .register-page { 
+            width: 356mm; 
+            min-height: 216mm; 
+            background: #ffffff;
+            color: #000000;
+            padding: 15mm; 
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+            font-family: 'Times New Roman', Times, serif; 
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* IMAGE WATERMARK */
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; height: auto; opacity: 0.06; pointer-events: none; z-index: 0; user-select: none; }
+
+        /* AUTO-SCALE TEXT BOX */
+        .scale-content { max-height: 52px; overflow: hidden; display: block; width: 100%; word-wrap: break-word; }
+
+        /* =========================================================
+           STRICT 1 PAGE A4 MODIFICATIONS
+           ========================================================= */
+        .register-page.a4-size {
+            width: 297mm !important;
+            height: 209mm !important; 
+            max-height: 209mm !important;
+            padding: 6mm 10mm 10mm 10mm !important; 
+            overflow: hidden !important; 
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important; 
+        }
+        
+        .register-page.a4-size .watermark { width: 300px !important; }
+        .register-page.a4-size .scale-content { max-height: 48px !important; }
+        .register-page.a4-size .reg-official-header { min-height: 40px !important; margin-bottom: 4px !important; padding-bottom: 2px !important; flex-shrink: 0 !important; }
+        .register-page.a4-size .reg-wb-logo { height: 40px !important; }
+        .register-page.a4-size .zp-title { font-size: 22px !important; margin-bottom: 1px !important; }
+        .register-page.a4-size .zp-subtitle { font-size: 15px !important; }
+        
+        /* A4 Banch Number Adjustments (+2px and shifted) */
+        .register-page.a4-size .reg-page-circle { width: 38px !important; height: 38px !important; font-size: 16px !important; border-width: 1.5px !important;}
+        .register-page.a4-size .reg-page-label { font-size: 16px !important; }
+        
+        .register-page.a4-size .reg-table { flex-grow: 1 !important; height: 100% !important; width: 100% !important; }
+        .register-page.a4-size .reg-table th, .register-page.a4-size .reg-table td { padding: 4px 6px !important; line-height: 1.2 !important; }
+        .register-page.a4-size .reg-table tbody tr { height: 10% !important; }
+        .register-page.a4-size .reg-table tbody td { vertical-align: top !important; }
+
+        /* Standard Header Layout */
+        .reg-official-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 8px; 
+            border-bottom: 3px double #000;
+            padding-bottom: 5px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 65px; 
+            z-index: 1; 
+        }
+
+        .reg-wb-logo { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 55px; width: auto; margin-top: -2px; z-index: 5; }
+
+        /* Banch Number Adjusted (+2px & shifted up) */
+        .reg-page-info {
+            position: absolute;
+            right: 0;
+            top: 35%; /* Shifted up from 50% */
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .reg-page-label { font-size: 18px; font-weight: bold; color: #000; } /* 16px -> 18px */
+        .reg-page-circle { width: 48px; height: 48px; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #000; outline: none; transition: 0.2s; background: transparent; } /* 45px->48px, 18px->20px */
+
+        .zp-title { font-size: 26px; font-weight: 900; color: #000; text-transform: uppercase; margin: 0 0 2px 0; letter-spacing: 1.2px; font-family: 'Times New Roman', Times, serif; }
+        .zp-subtitle { font-size: 18px; font-weight: bold; color: #222; margin: 0; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Times New Roman', Times, serif; }
+
+        /* TABLE LAYOUT */
+        .reg-table { width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif; table-layout: fixed; position: relative; z-index: 1; flex-grow: 1; margin-bottom: 10px;}
+        .reg-table th, .reg-table td { border: 1.5px solid #000; padding: 6px 8px; vertical-align: top; text-align: left; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; }
+        .reg-table th { font-weight: bold; font-size: 14px; text-align: center; }
+        .reg-table td { font-size: 14px; color: #1a1a1a; line-height: 1.3; cursor: pointer; transition: 0.2s; }
+        .reg-table tbody tr:hover td { background-color: rgba(246, 147, 29, 0.05); } 
+        .reg-table td.center { text-align: center; }
+        .reg-table th:nth-child(1) { width: 6%; }  
+        .reg-table th:nth-child(2) { width: 22%; } 
+        .reg-table th:nth-child(3) { width: 17%; } 
+        .reg-table th:nth-child(4) { width: 20%; } 
+        .reg-table th:nth-child(5) { width: 25%; } 
+        .reg-table th:nth-child(6) { width: 10%; } 
+
+        /* CREDIT FOOTER */
+        .credit-footer {
+            position: absolute;
+            bottom: 4mm;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+        .register-page.a4-size .credit-footer {
+            bottom: 2mm !important;
+            font-size: 9px !important;
+        }
+        @media print {
+            .credit-footer { color: #000; }
+        }
+
+        @media (max-width: 1400px) { .document-wrapper { transform: scale(0.40); } }
+        
+        /* GLOBAL STRICT PRINT RULES */
+        @media print {
+            html, body { width: 100% !important; height: 100% !important; background: #ffffff !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important; box-sizing: border-box !important; }
+            .top-bar, .header-main, .admin-sidebar, .admin-content, #login-screen, .zoom-controls { display: none !important; }
+            .admin-dashboard-container { display: block; padding: 0; margin: 0; }
+            .app-screen { display: none !important; }
+            .active-screen { display: block !important; opacity: 1;}
+            .admin-preview { border: none; background: transparent; padding: 0; display: block; box-shadow: none;}
+            .document-wrapper { transform: scale(1) !important; margin: 0 !important; display: block; padding: 0;}
+            .register-page { box-shadow: none !important; margin: 0 auto !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div><i class="fa fa-envelope me-1"></i> tourism.psbzp@gmail.com <span class="mx-2">|</span> <i class="fa fa-phone me-1"></i> 0341-2252627</div>
+            <div class="d-flex align-items-center"><span class="fw-bold text-warning"><i class="fa fa-shield-alt me-1"></i> Secure ZP Admin Portal 6.0</span></div>
+        </div>
+    </div>
+
+    <header class="header-main shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="brand-left">
+                <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="Govt Logo" crossorigin="anonymous">
+                <div class="brand-titles">
+                    <h1>Paschim Bardhaman Zilla Parishad</h1>
+                    <h2>Official Engineering & Work Registry Portal</h2>
+                </div>
+            </div>
+            <div class="brand-right d-none d-md-block"> 
+                <div class="railway-style-link">
+                    <span class="dm-link-text">Admin / Staff<br>Authorized Access Only</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="login-screen" class="app-screen active-screen">
+        <div class="login-box">
+            <img src="https://cgasansol.github.io/bunchlist/logo.png" class="login-logo" alt="Logo" crossorigin="anonymous">
+            <h2 style="color: var(--govt-navy); font-weight: 900; margin-bottom: 5px;">Admin Login</h2>
+            <p style="color: #64748b; font-weight: 600; margin-bottom: 30px; font-size: 14px;">Zilla Parishad IT Cell (OTP Secured)</p>
+            
+            <div id="email-section">
+                <div class="form-floating-custom">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" id="auth-email" placeholder="Enter Authorized Email">
+                </div>
+                <button class="btn-gradient" onclick="sendOTP()" id="btn-get-otp">Get OTP <i class="fa fa-paper-plane ms-2"></i></button>
+            </div>
+
+            <div id="otp-section" style="display:none;">
+                <div class="form-floating-custom">
+                    <i class="fa fa-key"></i>
+                    <input type="text" id="auth-otp" placeholder="Enter 6-Digit OTP" maxlength="6">
+                </div>
+                <button class="btn-gradient" onclick="verifyOTP()">Secure Login <i class="fa fa-arrow-right ms-2"></i></button>
+            </div>
+            
+            <div id="auth-msg" style="display:none; margin-top:15px; font-weight: 600; font-size: 13.5px;"></div>
+        </div>
+    </div>
+
+    <div id="main-dashboard" class="app-screen">
+        <div class="admin-dashboard-container">
+            
+            <aside class="admin-sidebar">
+                <div class="sidebar-user">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=150&q=80" alt="Admin">
+                    <h4>Admin User</h4>
+                    <p>Engineering Cell</p>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li class="active"><a href="javascript:void(0)"><i class="fa fa-book"></i> Work File Registry</a></li>
+                    <li style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); border-radius: 0; padding-top: 10px;" onclick="secureLogout()"><a href="javascript:void(0)" class="text-danger"><i class="fa fa-sign-out-alt"></i> Secure Logout</a></li>
+                </ul>
+            </aside>
+
+            <div class="admin-content">
+                <div class="section-header">
+                    <h2><i class="fa fa-edit text-warning"></i> Table Data Entry</h2>
+                    <span class="entry-badge" title="Total rows in table">Entries: <span id="entryCount">0</span> / 10</span>
+                </div>
+                
+                <div class="advanced-form-grid">
+                    <div class="form-group full-width">
+                        <label>Banch Number</label>
+                        <input type="text" id="inpPageNo" value="112" oninput="updatePageNo()">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>SL No.</label>
+                        <input type="text" id="inpSl" placeholder="e.g. 1177">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Agency / Contractor Name 
+                            <button type="button" class="btn-mic" onclick="startVoiceTyping('inpAgency', this)" title="Click and speak">
+                                <i class="fa fa-microphone"></i>
+                            </button>
+                        </label>
+                        <textarea id="inpAgency" placeholder="e.g. Prabhat Infra Buildcon Construction"></textarea>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>W/O NO. & Date</label>
+                        <div class="composite-field">
+                            <span class="static-text">PSBZP/WO/</span>
+                            <input type="text" class="inline-input" id="inpWoNum" placeholder="776" style="width: 70px;">
+                            <span class="static-text">dtd/-</span>
+                            <input type="text" class="inline-input" id="inpWoDate" placeholder="24.02.2026" style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>e-NIT NO. Details</label>
+                        <div class="composite-field">
+                            <span class="static-text">e-NIT No.</span>
+                            <input type="text" class="inline-input" id="inpEnitNum" placeholder="105" style="width: 65px;">
+                            <span class="static-text">of</span>
+                            <select id="inpEnitYear" class="inline-select">
+                                <option value="2016-2017">2016-2017</option>
+                                <option value="2017-2018">2017-2018</option>
+                                <option value="2018-2019">2018-2019</option>
+                                <option value="2019-2020">2019-2020</option>
+                                <option value="2020-2021">2020-2021</option>
+                                <option value="2021-2022">2021-2022</option>
+                                <option value="2022-2023">2022-2023</option>
+                                <option value="2023-2024">2023-2024</option>
+                                <option value="2024-2025">2024-2025</option>
+                                <option value="2025-2026" selected>2025-2026</option>
+                                <option value="2026-2027">2026-2027</option>
+                            </select>
+                            <span class="static-text" style="width:100%; margin-top:4px;">Work Sl No.</span>
+                            <input type="text" class="inline-input" id="inpEnitSl" placeholder="01" style="flex: 1;">
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <label style="margin-bottom: 0;">Name of Work
+                                <button type="button" class="btn-mic" onclick="startVoiceTyping('inpWork', this)" title="Click and speak">
+                                    <i class="fa fa-microphone"></i>
+                                </button>
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 800; color: #475569; text-transform: uppercase;">
+                                <span>Text Size:</span>
+                                <select id="inpWorkFontSize" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px 4px; font-weight: 700; outline: none; background: #fff; color: var(--govt-navy); cursor: pointer;">
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14" selected>14 (Normal)</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea id="inpWork" style="min-height: 80px;" placeholder="e.g. Repair & Installation of solar street light..."></textarea>
+                    </div>
+
+                    <button class="btn-add" onclick="addTableRow()"><i class="fa fa-plus"></i> Add Entry to Table</button>
+
+                    <div class="action-buttons">
+                        <button class="btn-action btn-print" onclick="printLegal()"><i class="fa fa-print"></i> Print Legal</button>
+                        <button class="btn-action btn-print-a4" onclick="printA4()"><i class="fa fa-file-pdf"></i> Print A4 (STRICT 1 PAGE)</button>
+                        <button class="btn-action btn-sample" onclick="fillSampleData()"><i class="fa fa-magic"></i> Fill Sample</button>
+                        <button class="btn-action btn-download" onclick="downloadDoc(this)"><i class="fa fa-image"></i> Save Image</button>
+                        <button class="btn-action btn-danger-outline" onclick="clearTable()"><i class="fa fa-trash-alt"></i> Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: PREVIEW PANEL -->
+            <div class="admin-preview">
+                
+                <!-- Zoom Controls -->
+                <div class="zoom-controls">
+                    <button onclick="zoomPreview(0.05)" title="Zoom In"><i class="fa fa-search-plus"></i></button>
+                    <button onclick="resetZoom()" title="Reset Zoom"><i class="fa fa-sync"></i></button>
+                    <button onclick="zoomPreview(-0.05)" title="Zoom Out"><i class="fa fa-search-minus"></i></button>
+                </div>
+
+                <div class="document-wrapper">
+                    <div class="register-page" id="registerNode">
+                        <img src="https://cgasansol.github.io/bunchlist/logo.png" class="watermark" alt="Govt Watermark" crossorigin="anonymous">
+
+                        <div class="reg-official-header">
+                            <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="" class="reg-wb-logo" crossorigin="anonymous">
+                            <h1 class="zp-title">Paschim Bardhaman Zilla Parishad</h1>
+                            <h2 class="zp-subtitle">Engineer Section</h2>
+
+                            <div class="reg-page-info">
+                                <span class="reg-page-label">Banch Number</span>
+                                <div class="reg-page-circle" id="outPageNo" contenteditable="true" onblur="syncBanchNumber(this)" title="Click to edit">112</div>
+                            </div>
+                        </div>
+
+                        <table class="reg-table">
+                            <thead>
+                                <tr>
+                                    <th>SL NO.</th>
+                                    <th>Name of Agency/Contractor</th>
+                                    <th>W/O NO.</th>
+                                    <th>e-NIT NO.</th>
+                                    <th>Name of work.</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                        
+                        <!-- Credit Label -->
+                        <div class="credit-footer">Created and Designed by Gourab Layak</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ==========================================
+        // EMAIL OTP LOGIN LOGIC
+        // ==========================================
+        
+        // PUBLIC KEY INITIALIZED
+        emailjs.init("aPzoG_7K9PB6_fbxr"); 
+
+        let generatedOTP = null;
+
+        // Authorized Emails
+        const authorizedEmails = [
+            "tourism.psbzp@gmail.com",
+            "admin2@gmail.com",
+            "gourablayak.zillaparishad@gmail.com" // User's email added here
+        ];
+
+        function showAuthMessage(msg, isError = false) {
+            const msgDiv = document.getElementById('auth-msg');
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = isError ? '#ef4444' : '#10b981';
+            msgDiv.innerText = msg;
+        }
+
+        function sendOTP() {
+            const emailInput = document.getElementById('auth-email').value.trim();
+            const btn = document.getElementById('btn-get-otp');
+
+            if (!emailInput) {
+                showAuthMessage("Please enter an email address.", true);
+                return;
+            }
+
+            if (!authorizedEmails.includes(emailInput.toLowerCase())) {
+                showAuthMessage("Access Denied! Unauthorized Email.", true);
+                return;
+            }
+
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            const templateParams = {
+                to_email: emailInput,
+                otp_code: generatedOTP
+            };
+
+            // CORRECTED TEMPLATE ID (lower case 't')
+            emailjs.send("service_ethdh28", "template_usu1hkw", templateParams)
+                .then(function(response) {
+                    document.getElementById('email-section').style.display = 'none';
+                    document.getElementById('otp-section').style.display = 'block';
+                    showAuthMessage("OTP sent successfully to your email!");
+                }, function(error) {
+                    console.error("FAILED...", error);
+                    showAuthMessage("Failed to send OTP. Try again.", true);
+                    btn.innerHTML = 'Get OTP <i class="fa fa-paper-plane ms-2"></i>';
+                    btn.disabled = false;
+                });
+        }
+
+        function verifyOTP() {
+            const userEnteredOTP = document.getElementById('auth-otp').value.trim();
+            
+            if (userEnteredOTP === generatedOTP) {
+                sessionStorage.setItem('regAuth', 'true');
+                executeLoginBypass();
+            } else {
+                showAuthMessage("Invalid OTP! Please check your email.", true);
+            }
+        }
+
+        function executeLoginBypass() {
+            document.getElementById('error-msg') ? document.getElementById('error-msg').style.display = 'none' : null;
+            document.getElementById('login-screen').classList.remove('active-screen');
+            document.getElementById('login-screen').style.display = 'none';
+            
+            const portal = document.getElementById('main-dashboard');
+            portal.style.display = 'flex';
+            portal.classList.add('active-screen');
+            
+            loadTableData();
+        }
+
+        function secureLogout() {
+            sessionStorage.removeItem('regAuth');
+            window.location.reload();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setPrintPageSize('Legal');
+            if(sessionStorage.getItem('regAuth') === 'true') {
+                executeLoginBypass();
+            }
+        });
+
+        // ==========================================
+        // EDIT FEATURE
+        // ==========================================
+        let currentlyEditingRow = null;
+
+        function resetEditState() {
+            currentlyEditingRow = null;
+            const addBtn = document.querySelector('.btn-add');
+            addBtn.innerHTML = '<i class="fa fa-plus"></i> Add Entry to Table';
+            addBtn.style.background = ''; 
+            addBtn.style.color = '';
+            addBtn.style.borderColor = '';
+            addBtn.style.boxShadow = '';
+        }
+
+        function editRow(row) {
+            currentlyEditingRow = row;
+            
+            document.getElementById('inpSl').value = row.dataset.sl || row.cells[0].innerText.trim();
+            
+            let agency = row.dataset.rawAgency !== undefined ? row.dataset.rawAgency : row.cells[1].innerText.trim();
+            document.getElementById('inpAgency').value = agency;
+            
+            document.getElementById('inpWoNum').value = row.dataset.woNum || '';
+            document.getElementById('inpWoDate').value = row.dataset.woDate || '';
+            document.getElementById('inpEnitNum').value = row.dataset.enitNum || '';
+            if(row.dataset.enitYear) document.getElementById('inpEnitYear').value = row.dataset.enitYear;
+            document.getElementById('inpEnitSl').value = row.dataset.enitSl || '';
+            
+            let work = row.dataset.rawWork !== undefined ? row.dataset.rawWork : row.cells[4].innerText.trim();
+            document.getElementById('inpWork').value = work;
+            
+            if(row.dataset.workFontSize) {
+                document.getElementById('inpWorkFontSize').value = row.dataset.workFontSize;
+            } else {
+                document.getElementById('inpWorkFontSize').value = '14';
+            }
+
+            const addBtn = document.querySelector('.btn-add');
+            addBtn.innerHTML = '<i class="fa fa-save"></i> Update Entry';
+            addBtn.style.background = '#10b981';
+            addBtn.style.color = '#fff';
+            addBtn.style.borderColor = '#059669';
+            addBtn.style.boxShadow = '0 5px 15px rgba(16, 185, 129, 0.3)';
+        }
+
+        // ==========================================
+        // ZOOM FEATURE
+        // ==========================================
+        let currentZoom = window.innerWidth <= 1400 ? 0.40 : 0.48;
+        
+        function zoomPreview(step) {
+            currentZoom += step;
+            if(currentZoom < 0.2) currentZoom = 0.2;
+            if(currentZoom > 1.5) currentZoom = 1.5;
+            document.querySelector('.document-wrapper').style.transform = `scale(${currentZoom})`;
+        }
+        
+        function resetZoom() {
+            currentZoom = window.innerWidth <= 1400 ? 0.40 : 0.48;
+            document.querySelector('.document-wrapper').style.transform = `scale(${currentZoom})`;
+        }
+
+        // ==========================================
+        // SMART AUTO FIT TEXT & FONT SCALING
+        // ==========================================
+        function autoFitText() {
+            const elements = document.querySelectorAll('.scale-content');
+            elements.forEach(el => {
+                let baseSize = el.getAttribute('data-base-size') ? parseFloat(el.getAttribute('data-base-size')) : 14;
+                el.style.fontSize = baseSize + 'px'; 
+                el.style.lineHeight = '1.3';
+                let currentSize = baseSize;
+                const minSize = 6; 
+                
+                while (el.scrollHeight > (el.clientHeight + 1) && currentSize > minSize) {
+                    currentSize -= 0.5;
+                    el.style.fontSize = currentSize + 'px';
+                }
+            });
+        }
+
+        // ==========================================
+        // VOICE TYPING
+        // ==========================================
+        function startVoiceTyping(targetId, btnElement) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Your browser does not support Voice Typing. Please use Google Chrome or Microsoft Edge.");
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-IN'; 
+
+            recognition.onstart = function() { btnElement.classList.add('recording'); };
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                transcript = transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase();
+                document.getElementById(targetId).value = transcript;
+                btnElement.classList.remove('recording');
+            };
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error", event.error);
+                btnElement.classList.remove('recording');
+                if(event.error === 'not-allowed') alert("Microphone access denied. Please allow microphone permissions in your browser.");
+            };
+            recognition.onend = function() { btnElement.classList.remove('recording'); };
+            recognition.start();
+        }
+
+        function updatePageNo() {
+            document.getElementById('outPageNo').innerText = document.getElementById('inpPageNo').value;
+            saveTableData();
+        }
+
+        function syncBanchNumber(element) {
+            document.getElementById('inpPageNo').value = element.innerText;
+            saveTableData();
+        }
+
+        function updateStats() {
+            const rowCount = document.querySelectorAll('#tableBody tr').length;
+            document.getElementById('entryCount').innerText = rowCount;
+        }
+
+        function addTableRow() {
+            const tbody = document.getElementById('tableBody');
+            const currentRowCount = tbody.querySelectorAll('tr').length;
+            
+            if (!currentlyEditingRow && currentRowCount >= 10) {
+                alert("Maximum 10 entries are allowed per page! Please save/print this page and clear the table to start a new one.");
+                return;
+            }
+
+            const sl = document.getElementById('inpSl').value;
+            const rawAgency = document.getElementById('inpAgency').value;
+            const agency = rawAgency.replace(/\n/g, '<br>');
+            const rawWork = document.getElementById('inpWork').value;
+            const work = rawWork.replace(/\n/g, '<br>');
+            const workFontSize = document.getElementById('inpWorkFontSize').value || "14";
+
+            let wo = '';
+            const woNum = document.getElementById('inpWoNum').value;
+            const woDate = document.getElementById('inpWoDate').value;
+            if(woNum || woDate) {
+                wo = `PSBZP/WO/${woNum}`;
+                if(woDate) wo += `<br>dtd/- ${woDate}`;
+            }
+
+            let enit = '';
+            const enitNum = document.getElementById('inpEnitNum').value;
+            const enitYear = document.getElementById('inpEnitYear').value;
+            const enitSl = document.getElementById('inpEnitSl').value;
+            if(enitNum) {
+                enit = `e-NIT No. ${enitNum} of ${enitYear}.`;
+                if(enitSl) enit += ` Work Sl No. ${enitSl}`;
+            }
+
+            if (!sl && !agency && !wo && !enit && !work) {
+                alert("Please fill at least one field to add a row.");
+                return;
+            }
+
+            const tr = currentlyEditingRow ? currentlyEditingRow : document.createElement('tr');
+            tr.setAttribute("ondblclick", "removeRow(this)");
+            tr.setAttribute("onclick", "editRow(this)");
+            tr.setAttribute("title", "Click to edit, Double-click to delete");
+
+            tr.dataset.sl = sl;
+            tr.dataset.rawAgency = rawAgency;
+            tr.dataset.woNum = woNum;
+            tr.dataset.woDate = woDate;
+            tr.dataset.enitNum = enitNum;
+            tr.dataset.enitYear = enitYear;
+            tr.dataset.enitSl = enitSl;
+            tr.dataset.rawWork = rawWork;
+            tr.dataset.workFontSize = workFontSize;
+
+            tr.innerHTML = `
+                <td class="center"><div class="scale-content" data-base-size="14">${sl}</div></td>
+                <td><div class="scale-content" data-base-size="14">${agency}</div></td>
+                <td><div class="scale-content" data-base-size="14">${wo}</div></td>
+                <td><div class="scale-content" data-base-size="14">${enit}</div></td>
+                <td><div class="scale-content" data-base-size="${workFontSize}">${work}</div></td>
+                <td><div class="scale-content" data-base-size="14"></div></td>
+            `;
+
+            if (!currentlyEditingRow) {
+                tbody.appendChild(tr);
+            } else {
+                resetEditState();
+            }
+
+            if (sl && !isNaN(sl)) {
+                document.getElementById('inpSl').value = parseInt(sl) + 1;
+            } else {
+                document.getElementById('inpSl').value = '';
+            }
+
+            document.getElementById('inpAgency').value = '';
+            document.getElementById('inpWoNum').value = '';
+            document.getElementById('inpWoDate').value = '';
+            document.getElementById('inpEnitNum').value = '';
+            document.getElementById('inpEnitSl').value = '';
+            document.getElementById('inpWork').value = '';
+            document.getElementById('inpWorkFontSize').value = '14'; 
+            
+            document.getElementById('inpAgency').focus();
+            
+            saveTableData();
+            autoFitText();
+        }
+
+        function fillSampleData() {
+            if(!confirm("This will clear your current table and fill it with 10 sample entries. Continue?")) return;
+            resetEditState();
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = ''; 
+            
+            let startSl = 101;
+            let sampleHtml = '';
+            
+            for(let i=1; i<=10; i++) {
+                let sl = startSl++;
+                let rawAgency = `Sample Extremely Long Contractor Name & Infrastructure Development Co. Pvt Ltd 0${i}`;
+                let woNum = `100${i}`;
+                let woDate = `15.03.2026`;
+                let enitNum = `10${i}`;
+                let enitYear = `2025-2026`;
+                let enitSl = `0${i}`;
+                let rawWork = `Construction, maintenance and rigorous testing of rural pipeline network setup, solar panel grid installation, and structural integrity verification at Paschim Bardhaman Block ${i}.`;
+                let workFontSize = 14;
+
+                sampleHtml += `
+                <tr ondblclick="removeRow(this)" onclick="editRow(this)" title="Click to edit, Double-click to delete"
+                    data-sl="${sl}" data-raw-agency="${rawAgency}" data-wo-num="${woNum}" data-wo-date="${woDate}" 
+                    data-enit-num="${enitNum}" data-enit-year="${enitYear}" data-enit-sl="${enitSl}" 
+                    data-raw-work="${rawWork}" data-work-font-size="${workFontSize}">
+                    <td class="center"><div class="scale-content" data-base-size="14">${sl}</div></td>
+                    <td><div class="scale-content" data-base-size="14">${rawAgency}</div></td>
+                    <td><div class="scale-content" data-base-size="14">PSBZP/WO/${woNum}<br>dtd/- ${woDate}</div></td>
+                    <td><div class="scale-content" data-base-size="14">e-NIT No. ${enitNum} of ${enitYear}.<br>Work Sl No. ${enitSl}</div></td>
+                    <td><div class="scale-content" data-base-size="14">${rawWork}</div></td>
+                    <td><div class="scale-content" data-base-size="14"></div></td>
+                </tr>`;
+            }
+            
+            tbody.innerHTML = sampleHtml;
+            document.getElementById('inpSl').value = startSl;
+            saveTableData();
+            autoFitText(); 
+        }
+
+        function removeRow(row) {
+            if(confirm("Delete this row?")) {
+                if(currentlyEditingRow === row) resetEditState();
+                row.remove();
+                saveTableData();
+            }
+        }
+
+        function clearTable() {
+            if(confirm("WARNING: This will clear all data in the table. Are you sure?")) {
+                resetEditState();
+                document.getElementById('tableBody').innerHTML = ''; 
+                document.getElementById('inpSl').value = ''; 
+                saveTableData();
+            }
+        }
+
+        function saveTableData() {
+            const tbodyHtml = document.getElementById('tableBody').innerHTML;
+            const banchNo = document.getElementById('inpPageNo').value;
+            localStorage.setItem('zpTableData', tbodyHtml);
+            localStorage.setItem('zpBanchNo', banchNo);
+            updateStats();
+        }
+
+        function loadTableData() {
+            const savedData = localStorage.getItem('zpTableData');
+            const savedBanch = localStorage.getItem('zpBanchNo');
+            
+            if(savedData) {
+                document.getElementById('tableBody').innerHTML = savedData;
+                const rows = document.querySelectorAll('#tableBody tr');
+                rows.forEach(row => {
+                    if(!row.hasAttribute("onclick")) row.setAttribute("onclick", "editRow(this)");
+                    const tds = row.querySelectorAll('td');
+                    tds.forEach(td => {
+                        if(!td.querySelector('.scale-content')) {
+                            const content = td.innerHTML;
+                            td.innerHTML = `<div class="scale-content" data-base-size="14">${content}</div>`;
+                        }
+                    });
+                });
+            }
+            if(savedBanch) {
+                document.getElementById('inpPageNo').value = savedBanch;
+                document.getElementById('outPageNo').innerText = savedBanch;
+            }
+            updateStats();
+            autoFitText();
+        }
+
+        // ==========================================
+        // DYNAMIC STRICT PRINT LOGIC
+        // ==========================================
+        function setPrintPageSize(type) {
+            let style = document.getElementById('dynamic-print-style');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'dynamic-print-style';
+                document.head.appendChild(style);
+            }
+            
+            let pageCss = '';
+            if(type === 'A4') {
+                pageCss = '@page { size: 297mm 210mm landscape !important; margin: 0mm !important; }';
+            } else {
+                pageCss = '@page { size: 356mm 216mm landscape !important; margin: 0mm !important; }';
+            }
+
+            style.innerHTML = `@media print { 
+                ${pageCss}
+                html, body { overflow: hidden !important; height: 100vh !important; }
+            }`;
+        }
+
+        function printLegal() {
+            setPrintPageSize('Legal');
+            document.getElementById('registerNode').classList.remove('a4-size');
+            autoFitText(); 
+            window.print();
+        }
+
+        function printA4() {
+            setPrintPageSize('A4');
+            document.getElementById('registerNode').classList.add('a4-size');
+            autoFitText(); 
+            window.print();
+            
+            setTimeout(() => {
+                document.getElementById('registerNode').classList.remove('a4-size');
+                setPrintPageSize('Legal');
+                autoFitText(); 
+            }, 1000);
+        }
+
+        function downloadDoc(btn) {
+            const formNode = document.getElementById('registerNode'); 
+            const wrapper = document.querySelector('.document-wrapper');
+            
+            const originalTransform = wrapper.style.transform; 
+            wrapper.style.transform = "scale(1)";
+            void wrapper.offsetHeight; 
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                html2canvas(formNode, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    backgroundColor: "#ffffff",
+                    logging: false
+                }).then(canvas => {
+                    try {
+                        let link = document.createElement('a'); 
+                        let pageNo = document.getElementById('inpPageNo').value || "1";
+                        link.download = `Work_List_Banch_${pageNo}.png`;
+                        link.href = canvas.toDataURL("image/png"); 
+                        link.click();
+                    } catch (err) {
+                        alert("Error capturing image.");
+                        console.error(err);
+                    }
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            }, 600); 
+        }
+    </script>
+</body>
+</html>
