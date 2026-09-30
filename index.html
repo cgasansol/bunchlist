@@ -169,6 +169,8 @@
             box-shadow: 0 25px 60px rgba(0,0,0,0.5);
             font-family: 'Times New Roman', Times, serif; 
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         /* IMAGE WATERMARK */
@@ -185,73 +187,81 @@
             user-select: none;
         }
 
+        /* AUTO-SCALE TEXT BOX */
+        .scale-content {
+            max-height: 54px; /* Strict limits for text so table never expands */
+            overflow: hidden;
+            display: block;
+            width: 100%;
+            word-wrap: break-word;
+            transition: font-size 0.2s ease;
+        }
+
         /* =========================================================
-           STRICT 1 PAGE A4 MODIFICATIONS (EQUAL 4-SIDE MARGIN & PERFECT STRETCH)
+           STRICT 1 PAGE A4 MODIFICATIONS
            ========================================================= */
         .register-page.a4-size {
             width: 297mm !important;
-            height: 209mm !important; /* Extremely safe height to block 2nd page */
+            height: 209mm !important; 
             max-height: 209mm !important;
-            padding: 10mm !important; /* 4-SIDE EQUAL GAP (Top, Bottom, Left, Right) */
+            padding: 10mm !important; 
             overflow: hidden !important; 
             page-break-after: avoid !important;
             page-break-inside: avoid !important;
             box-sizing: border-box !important;
             display: flex !important;
-            flex-direction: column !important; /* Stack vertically to enable stretch */
+            flex-direction: column !important; 
         }
         
         .register-page.a4-size .watermark {
             width: 300px !important;
         }
 
+        /* Auto-Scale text box for A4 */
+        .register-page.a4-size .scale-content {
+            max-height: 48px !important;
+        }
+
         /* Header fixed sizes for A4 */
-        .register-page.a4-size .reg-official-header { min-height: 40px !important; margin-bottom: 5px !important; padding-bottom: 3px !important; flex-shrink: 0 !important; }
+        .register-page.a4-size .reg-official-header { min-height: 50px !important; margin-bottom: 8px !important; padding-bottom: 5px !important; flex-shrink: 0 !important; }
         .register-page.a4-size .reg-wb-logo { height: 45px !important; }
         .register-page.a4-size .zp-title { font-size: 22px !important; margin-bottom: 1px !important; }
         .register-page.a4-size .zp-subtitle { font-size: 15px !important; }
-        .register-page.a4-size .reg-header-row { margin-bottom: 5px !important; flex-shrink: 0 !important; }
-        .register-page.a4-size .reg-title { font-size: 18px !important; }
         .register-page.a4-size .reg-page-circle { width: 35px !important; height: 35px !important; font-size: 14px !important; border-width: 1.5px !important;}
         .register-page.a4-size .reg-page-label { font-size: 14px !important; }
         
-        /* 
-           Table stretches to fill the EXACT remaining gap. 
-           This connects perfectly to the 10mm bottom margin! 
-        */
         .register-page.a4-size .reg-table {
             flex-grow: 1 !important; 
-            height: 100% !important; /* Force table to touch the bottom boundary */
+            height: 100% !important; 
             width: 100% !important;
         }
         
         .register-page.a4-size .reg-table th, 
         .register-page.a4-size .reg-table td {
             padding: 4px 6px !important; 
-            font-size: 13px !important; 
             line-height: 1.3 !important;
         }
 
         .register-page.a4-size .reg-table tbody tr {
-            height: 10% !important; /* Browser evenly divides 100% height among 10 rows */
+            height: 10% !important; 
         }
 
         .register-page.a4-size .reg-table tbody td {
             vertical-align: top !important;
         }
 
-        /* Standard CSS cont... */
+        /* Standard Header Layout - BANCH NUMBER MOVED INSIDE HEADER */
         .reg-official-header {
             position: relative;
             text-align: center;
-            margin-bottom: 12px; 
+            margin-bottom: 15px; 
             border-bottom: 3px double #000;
-            padding-bottom: 8px; 
+            padding-bottom: 10px; 
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 70px; 
+            min-height: 80px; 
             z-index: 1; 
         }
 
@@ -266,43 +276,6 @@
             z-index: 5;
         }
 
-        .zp-title {
-            font-size: 26px; 
-            font-weight: 900;
-            color: #000;
-            text-transform: uppercase;
-            margin: 0 0 4px 0;
-            letter-spacing: 1.2px;
-            font-family: 'Times New Roman', Times, serif;
-        }
-        .zp-subtitle {
-            font-size: 18px; 
-            font-weight: bold;
-            color: #222;
-            margin: 0;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-family: 'Times New Roman', Times, serif;
-        }
-
-        .reg-header-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            margin-bottom: 15px; 
-            z-index: 1;
-        }
-
-        .reg-title {
-            font-size: 22px; 
-            font-weight: bold;
-            color: #1a1a1a;
-            text-transform: capitalize;
-            text-decoration: underline;
-            font-style: italic;
-        }
-
         .reg-page-info {
             position: absolute;
             right: 0;
@@ -311,6 +284,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            z-index: 5;
         }
 
         .reg-page-label {
@@ -335,6 +309,26 @@
             background: transparent;
         }
 
+        .zp-title {
+            font-size: 26px; 
+            font-weight: 900;
+            color: #000;
+            text-transform: uppercase;
+            margin: 0 0 4px 0;
+            letter-spacing: 1.2px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        
+        .zp-subtitle {
+            font-size: 18px; 
+            font-weight: bold;
+            color: #222;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
         /* TABLE LAYOUT */
         .reg-table {
             width: 100%;
@@ -343,6 +337,7 @@
             table-layout: fixed; 
             position: relative;
             z-index: 1; 
+            flex-grow: 1;
         }
 
         .reg-table th, .reg-table td {
@@ -461,7 +456,6 @@
                         <input type="text" id="inpSl" placeholder="e.g. 1177">
                     </div>
                     
-                    <!-- Agency with Mic Button -->
                     <div class="form-group full-width">
                         <label>Agency / Contractor Name 
                             <button type="button" class="btn-mic" onclick="startVoiceTyping('inpAgency', this)" title="Click and speak">
@@ -505,7 +499,6 @@
                         </div>
                     </div>
 
-                    <!-- Work Name with Mic Button -->
                     <div class="form-group full-width">
                         <label>Name of Work
                             <button type="button" class="btn-mic" onclick="startVoiceTyping('inpWork', this)" title="Click and speak">
@@ -532,17 +525,16 @@
                 <div class="document-wrapper">
                     
                     <div class="register-page" id="registerNode">
-                        <!-- IMAGE WATERMARK -->
                         <img src="https://cgasansol.github.io/bunchlist/logo.png" class="watermark" alt="Govt Watermark" crossorigin="anonymous">
 
+                        <!-- HEADER WITH BANCH NUMBER MOVED INSIDE -->
                         <div class="reg-official-header">
                             <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="" class="reg-wb-logo" crossorigin="anonymous">
+                            
                             <h1 class="zp-title">Paschim Bardhaman Zilla Parishad</h1>
                             <h2 class="zp-subtitle">Engineer Section</h2>
-                        </div>
 
-                        <div class="reg-header-row">
-                            <div class="reg-title">List of work File</div>
+                            <!-- Banch Number Now Inside the Underline Header -->
                             <div class="reg-page-info">
                                 <span class="reg-page-label">Banch Number</span>
                                 <div class="reg-page-circle" id="outPageNo" contenteditable="true" onblur="syncBanchNumber(this)" title="Click to edit">112</div>
@@ -580,7 +572,26 @@
         });
 
         // ==========================================
-        // VOICE TYPING (WEB SPEECH API)
+        // AUTO FIT TEXT (SHRINK IF OVERFLOW)
+        // ==========================================
+        function autoFitText() {
+            const elements = document.querySelectorAll('.scale-content');
+            elements.forEach(el => {
+                el.style.fontSize = '14px'; 
+                el.style.lineHeight = '1.3';
+                
+                let currentSize = 14;
+                const minSize = 8; 
+                
+                while (el.scrollHeight > el.clientHeight && currentSize > minSize) {
+                    currentSize -= 0.5;
+                    el.style.fontSize = currentSize + 'px';
+                }
+            });
+        }
+
+        // ==========================================
+        // VOICE TYPING
         // ==========================================
         function startVoiceTyping(targetId, btnElement) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -601,10 +612,7 @@
 
             recognition.onresult = function(event) {
                 let transcript = event.results[0][0].transcript;
-                
-                // Formating: First Letter Capital, rest small (Sentence case)
                 transcript = transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase();
-                
                 document.getElementById(targetId).value = transcript;
                 btnElement.classList.remove('recording');
             };
@@ -711,12 +719,12 @@
             tr.setAttribute("title", "Double-click to delete this row");
 
             tr.innerHTML = `
-                <td class="center">${sl}</td>
-                <td>${agency}</td>
-                <td>${wo}</td>
-                <td>${enit}</td>
-                <td>${work}</td>
-                <td></td>
+                <td class="center"><div class="scale-content">${sl}</div></td>
+                <td><div class="scale-content">${agency}</div></td>
+                <td><div class="scale-content">${wo}</div></td>
+                <td><div class="scale-content">${enit}</div></td>
+                <td><div class="scale-content">${work}</div></td>
+                <td><div class="scale-content"></div></td>
             `;
             tbody.appendChild(tr);
 
@@ -736,6 +744,7 @@
             document.getElementById('inpAgency').focus();
             
             saveTableData();
+            autoFitText();
         }
 
         function fillSampleData() {
@@ -750,18 +759,19 @@
             for(let i=1; i<=10; i++) {
                 sampleHtml += `
                 <tr ondblclick="removeRow(this)" title="Double-click to delete this row">
-                    <td class="center">${startSl++}</td>
-                    <td>Sample Contractor & Infra Co. 0${i}</td>
-                    <td>PSBZP/WO/100${i}<br>dtd/- 15.03.2026</td>
-                    <td>e-NIT No. 10${i} of 2025-2026.<br>Work Sl No. 0${i}</td>
-                    <td>Construction and maintenance of rural pipeline network setup at Paschim Bardhaman Block ${i}.</td>
-                    <td></td>
+                    <td class="center"><div class="scale-content">${startSl++}</div></td>
+                    <td><div class="scale-content">Sample Extremely Long Contractor Name & Infrastructure Development Co. Pvt Ltd 0${i}</div></td>
+                    <td><div class="scale-content">PSBZP/WO/100${i}<br>dtd/- 15.03.2026</div></td>
+                    <td><div class="scale-content">e-NIT No. 10${i} of 2025-2026.<br>Work Sl No. 0${i}</div></td>
+                    <td><div class="scale-content">Construction, maintenance and rigorous testing of rural pipeline network setup, solar panel grid installation, and structural integrity verification at Paschim Bardhaman Block ${i}.</div></td>
+                    <td><div class="scale-content"></div></td>
                 </tr>`;
             }
             
             tbody.innerHTML = sampleHtml;
             document.getElementById('inpSl').value = startSl;
             saveTableData();
+            autoFitText(); 
         }
 
         function removeRow(row) {
@@ -793,12 +803,24 @@
             
             if(savedData) {
                 document.getElementById('tableBody').innerHTML = savedData;
+                
+                const rows = document.querySelectorAll('#tableBody tr');
+                rows.forEach(row => {
+                    const tds = row.querySelectorAll('td');
+                    tds.forEach(td => {
+                        if(!td.querySelector('.scale-content')) {
+                            const content = td.innerHTML;
+                            td.innerHTML = `<div class="scale-content">${content}</div>`;
+                        }
+                    });
+                });
             }
             if(savedBanch) {
                 document.getElementById('inpPageNo').value = savedBanch;
                 document.getElementById('outPageNo').innerText = savedBanch;
             }
             updateStats();
+            autoFitText();
         }
 
         // ==========================================
@@ -814,9 +836,9 @@
             
             let pageCss = '';
             if(type === 'A4') {
-                pageCss = '@page { size: A4 landscape !important; margin: 0mm !important; }';
+                pageCss = '@page { size: 297mm 210mm landscape !important; margin: 0mm !important; }';
             } else {
-                pageCss = '@page { size: legal landscape !important; margin: 0mm !important; }';
+                pageCss = '@page { size: 356mm 216mm landscape !important; margin: 0mm !important; }';
             }
 
             style.innerHTML = `@media print { 
@@ -828,17 +850,20 @@
         function printLegal() {
             setPrintPageSize('Legal');
             document.getElementById('registerNode').classList.remove('a4-size');
+            autoFitText(); 
             window.print();
         }
 
         function printA4() {
             setPrintPageSize('A4');
             document.getElementById('registerNode').classList.add('a4-size');
+            autoFitText(); 
             window.print();
             
             setTimeout(() => {
                 document.getElementById('registerNode').classList.remove('a4-size');
                 setPrintPageSize('Legal');
+                autoFitText(); 
             }, 1000);
         }
 
