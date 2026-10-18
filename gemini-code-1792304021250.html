@@ -1,0 +1,2981 @@
+<!DOCTYPE html>
+<html lang="en" style="scroll-behavior: smooth;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSBZP District Engineer Section - Admin Portal v2.0</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <style>
+        /* =========================================================
+           WB GOVT GOLDEN-HOUR FROSTED GLASS THEME VARIABLES
+           ========================================================= */
+        :root {
+            --theme-primary: #d97706;
+            --theme-amber: #dd7a19;
+            --theme-amber-light: rgba(221, 122, 25, 0.14);
+            --theme-amber-border: rgba(221, 122, 25, 0.28);
+            --text-dark: #1c1917;
+            --text-body: #332e2a;
+            --text-muted: #57534e;
+            --glass-surface: rgba(255, 252, 247, 0.72);
+            --glass-surface-strong: rgba(255, 253, 250, 0.88);
+            --glass-border: rgba(255, 255, 255, 0.78);
+            --glass-shadow: 0 20px 50px rgba(45, 28, 10, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+            --pill-btn-bg: #ffffff;
+            --pill-btn-shadow: 0 8px 24px rgba(120, 65, 10, 0.14);
+            --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-dark);
+            margin: 0;
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            background: 
+                linear-gradient(180deg, rgba(68, 40, 16, 0.35) 0%, rgba(38, 28, 20, 0.65) 100%),
+                url('https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=1920&q=85') center/cover no-repeat fixed;
+        }
+
+        input, textarea, [contenteditable="true"], .reg-table {
+            user-select: text;
+        }
+
+        /* Animations */
+        @keyframes fadeInGlass {
+            0% { opacity: 0; transform: translateY(16px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes paperFlip {
+            0% { opacity: 0.45; transform: perspective(1200px) rotateY(-5deg) scale(0.97); }
+            100% { opacity: 1; transform: perspective(1200px) rotateY(0deg) scale(1); }
+        }
+        @keyframes pulseMic {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            50% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes rowHighlight {
+            0% { background-color: rgba(221, 122, 25, 0.25); }
+            100% { background-color: transparent; }
+        }
+        @keyframes spinTricolor {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* =========================================================
+           TRI-COLOUR SMALL CIRCLE WITH LOGO LOADER & BLUR EFFECT
+           ========================================================= */
+        #main-dashboard {
+            transition: filter 0.65s var(--ease-smooth), transform 0.65s var(--ease-smooth);
+        }
+        #main-dashboard.dashboard-blurred {
+            filter: blur(12px);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .tricolor-loader-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9998;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 252, 247, 0.14);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.45s var(--ease-smooth);
+        }
+        .tricolor-loader-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .tricolor-circle-box {
+            position: relative;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 18px 40px rgba(28, 15, 4, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.85);
+            transition: transform 0.4s var(--ease-spring);
+        }
+        .tricolor-loader-overlay.active .tricolor-circle-box {
+            transform: scale(1);
+        }
+        /* Spinning Tri-Colour Ring */
+        .tricolor-ring {
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #FF9933 0deg 115deg,
+                #ffffff 115deg 235deg,
+                #138808 235deg 350deg,
+                transparent 350deg 360deg
+            );
+            -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4.5px), #000 calc(100% - 4px));
+            mask: radial-gradient(farthest-side, transparent calc(100% - 4.5px), #000 calc(100% - 4px));
+            animation: spinTricolor 0.95s linear infinite;
+            filter: drop-shadow(0 0 3px rgba(0,0,0,0.12));
+        }
+        /* Center Stationary Govt Logo */
+        .tricolor-center-logo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        /* =========================================================
+           TRICOLOR TOP BAR & OFFICIAL WHITE HEADER
+           ========================================================= */
+        .tricolor-strip {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            height: 6px;
+            width: 100%;
+            flex-shrink: 0;
+            z-index: 30;
+        }
+        .tricolor-strip .saffron { background-color: #f39223; }
+        .tricolor-strip .white { background-color: #ffffff; }
+        .tricolor-strip .green { background-color: #15803d; }
+
+        .official-white-header {
+            background: #ffffff;
+            padding: 12px 24px 14px 24px;
+            flex-shrink: 0;
+            z-index: 25;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+        .header-inner {
+            max-width: 1820px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+        .header-meta-left, .header-meta-right {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 260px;
+        }
+        .header-meta-right {
+            justify-content: flex-end;
+        }
+        .header-center-brand {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .header-center-brand img {
+            height: 48px;
+            width: 48px;
+            object-fit: contain;
+            margin-bottom: 4px;
+        }
+        .header-center-brand h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            color: var(--theme-amber);
+            letter-spacing: 2.2px;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .header-center-brand h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4b5563;
+            margin: 2px 0 0 0;
+            letter-spacing: 0.2px;
+        }
+        .portal-access-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            background: var(--theme-amber-light);
+            border: 1px solid var(--theme-amber-border);
+            color: var(--theme-primary);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        /* =========================================================
+           FROSTED GLASS COMPONENTS
+           ========================================================= */
+        .app-screen { display: none; opacity: 0; flex: 1; overflow: hidden; } 
+        .active-screen { display: flex; opacity: 1; animation: fadeInGlass 0.45s var(--ease-smooth) forwards; }
+
+        .glass-icon-box {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: rgba(221, 122, 25, 0.12);
+            border: 1px solid rgba(221, 122, 25, 0.25);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--theme-amber);
+            font-size: 20px;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
+        }
+        .glass-category-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--theme-amber);
+            text-transform: uppercase;
+            letter-spacing: 1.6px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .glass-serif-title {
+            font-family: 'Merriweather', Georgia, serif;
+            font-weight: 900;
+            color: #1c1917;
+            letter-spacing: -0.3px;
+            margin: 0;
+        }
+        .glass-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.65);
+            border: none;
+            margin: 16px 0;
+        }
+
+        .btn-pill-white {
+            background: var(--pill-btn-bg);
+            color: var(--theme-amber);
+            font-weight: 800;
+            padding: 14px 22px;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 16px;
+            width: 100%;
+            font-size: 14.5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: var(--pill-btn-shadow);
+            transition: all 0.25s var(--ease-smooth);
+        }
+        .btn-pill-white:hover {
+            transform: translateY(-2px);
+            background: #fffcf8;
+            color: #b45309;
+            box-shadow: 0 12px 28px rgba(120, 65, 10, 0.22);
+        }
+        .btn-pill-white i { transition: transform 0.25s ease; }
+        .btn-pill-white:hover i { transform: translateX(4px); }
+
+        /* =========================================================
+           STANDALONE APP CUSTOM MODAL OVERLAY
+           ========================================================= */
+        .app-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(28, 19, 10, 0.52);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.28s var(--ease-smooth);
+        }
+        .app-modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .app-modal-card {
+            background: var(--glass-surface-strong);
+            backdrop-filter: blur(26px);
+            -webkit-backdrop-filter: blur(26px);
+            border: 1.5px solid rgba(255, 255, 255, 0.92);
+            border-radius: 28px;
+            padding: 30px 28px 26px 28px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 28px 65px rgba(28, 15, 4, 0.38), inset 0 1px 2px rgba(255, 255, 255, 0.95);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(22px) scale(0.92);
+            transition: transform 0.34s var(--ease-spring);
+            text-align: left;
+        }
+        .app-modal-backdrop.active .app-modal-card {
+            transform: translateY(0) scale(1);
+        }
+        .app-modal-card::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.35);
+            pointer-events: none;
+        }
+        .app-modal-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 21px;
+            margin-bottom: 14px;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.85);
+        }
+        .app-modal-icon.theme-amber {
+            background: rgba(221, 122, 25, 0.14);
+            border: 1px solid rgba(221, 122, 25, 0.3);
+            color: var(--theme-amber);
+        }
+        .app-modal-icon.theme-danger {
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.28);
+            color: #dc2626;
+        }
+        .app-modal-icon.theme-success {
+            background: rgba(21, 128, 61, 0.12);
+            border: 1px solid rgba(21, 128, 61, 0.28);
+            color: #15803d;
+        }
+        .app-modal-tag {
+            font-size: 10.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--theme-amber);
+            display: block;
+            margin-bottom: 4px;
+        }
+        .app-modal-tag.danger-tag { color: #dc2626; }
+        .app-modal-title {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin: 0 0 10px 0;
+            line-height: 1.3;
+        }
+        .app-modal-message {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-body);
+            line-height: 1.55;
+            margin: 0;
+        }
+        .app-modal-input-wrap {
+            margin-top: 14px;
+            display: none;
+        }
+        .app-modal-input-wrap input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 13px;
+            border: 1.5px solid rgba(221, 122, 25, 0.4);
+            background: #ffffff;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+            outline: none;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+        .app-modal-input-wrap input:focus {
+            border-color: var(--theme-amber);
+            box-shadow: 0 0 0 4px rgba(221, 122, 25, 0.15);
+        }
+        .app-modal-divider {
+            height: 1px;
+            background: rgba(221, 122, 25, 0.18);
+            border: none;
+            margin: 18px 0 16px 0;
+        }
+        .app-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(87, 83, 78, 0.22);
+            background: rgba(255, 255, 255, 0.65);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-modal-cancel:hover {
+            background: #ffffff;
+            color: var(--text-dark);
+            transform: translateY(-1px);
+        }
+        .btn-modal-confirm {
+            flex: 1.3;
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            background: #ffffff;
+            color: var(--theme-amber);
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+            box-shadow: var(--pill-btn-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.22s var(--ease-smooth);
+        }
+        .btn-modal-confirm:hover {
+            background: var(--theme-amber);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(221, 122, 25, 0.3);
+        }
+        .btn-modal-confirm.danger-btn {
+            color: #dc2626;
+        }
+        .btn-modal-confirm.danger-btn:hover {
+            background: #dc2626;
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(220, 38, 38, 0.3);
+        }
+
+        /* =========================================================
+           LOGIN SCREEN (FROSTED GLASS CARD)
+           ========================================================= */
+        #login-screen {
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        .login-box {
+            background: var(--glass-surface);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            padding: 36px 34px;
+            border-radius: 30px;
+            text-align: left;
+            width: 100%;
+            max-width: 430px;
+            border: 1.5px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box::after {
+            content: '';
+            position: absolute;
+            top: -35px;
+            right: -35px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.22);
+            pointer-events: none;
+        }
+
+        .form-floating-custom { position: relative; margin-bottom: 18px; text-align: left; }
+        .form-floating-custom i { position: absolute; top: 50%; left: 16px; transform: translateY(-50%); color: var(--theme-amber); font-size: 16px; }
+        .form-floating-custom input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14.5px;
+            outline: none;
+            color: var(--text-dark);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+            transition: 0.25s;
+        }
+        .form-floating-custom input:focus {
+            background: #ffffff;
+            border-color: var(--theme-amber);
+            box-shadow: 0 0 0 4px rgba(221, 122, 25, 0.15);
+        }
+
+        /* =========================================================
+           DASHBOARD 3-COLUMN LAYOUT (FROSTED GLASS CARDS)
+           ========================================================= */
+        .admin-dashboard-container {
+            display: flex;
+            width: 100%;
+            max-width: 1860px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            gap: 18px;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        /* LEFT SIDEBAR (FROSTED CARD) */
+        .admin-sidebar {
+            width: 280px;
+            background: var(--glass-surface);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-radius: 28px;
+            padding: 20px 18px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: var(--glass-shadow);
+            border: 1.5px solid var(--glass-border);
+            overflow-y: auto;
+            position: relative;
+        }
+        .admin-sidebar::-webkit-scrollbar { width: 4px; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: var(--theme-amber); border-radius: 10px; }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+            margin-bottom: 16px;
+            background: rgba(255, 255, 255, 0.45);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        .sidebar-user img {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            border: 2px solid var(--theme-amber);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .sidebar-user h4 {
+            font-family: 'Merriweather', serif;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 900;
+            margin: 0;
+        }
+        .sidebar-user p {
+            color: var(--theme-amber);
+            font-size: 10.5px;
+            margin: 2px 0 0 0;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        
+        .sidebar-menu { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 9px; }
+        .sidebar-menu li {
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 16px;
+            transition: all 0.25s var(--ease-smooth);
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.75);
+        }
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            color: var(--text-body);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 13px;
+            gap: 10px;
+        }
+        .sidebar-menu li .menu-left { display: flex; align-items: center; gap: 11px; }
+        .sidebar-menu li i {
+            font-size: 15px;
+            width: 28px;
+            height: 28px;
+            border-radius: 9px;
+            background: var(--theme-amber-light);
+            color: var(--theme-amber);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.25s;
+        }
+        .sidebar-menu li:hover, .sidebar-menu li.active {
+            background: #ffffff;
+            border-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: var(--pill-btn-shadow);
+        }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: var(--theme-amber); font-weight: 800; }
+        .sidebar-menu li.active i { background: var(--theme-amber); color: #ffffff; }
+
+        .history-badge-pill {
+            background: var(--theme-amber-light);
+            color: var(--theme-amber);
+            padding: 2px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            border: 1px solid var(--theme-amber-border);
+        }
+
+        /* Quick Mini History in Sidebar */
+        .sidebar-recent-box {
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.65);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .sidebar-recent-title {
+            color: var(--theme-amber);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar-bunch-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            overflow-y: auto;
+            max-height: 240px;
+            padding-right: 4px;
+            align-content: flex-start;
+        }
+        .sidebar-bunch-pills::-webkit-scrollbar { width: 3px; }
+        .sidebar-bunch-pills::-webkit-scrollbar-thumb { background: var(--theme-amber); border-radius: 10px; }
+        .mini-bunch-pill {
+            background: rgba(255, 255, 255, 0.65);
+            color: var(--text-dark);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mini-bunch-pill:hover {
+            background: #ffffff;
+            color: var(--theme-amber);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .mini-bunch-pill.current-active {
+            background: var(--theme-amber);
+            color: #ffffff;
+            border-color: var(--theme-amber);
+            box-shadow: 0 5px 14px rgba(221, 122, 25, 0.35);
+        }
+        
+        /* =========================================================
+           MIDDLE PANEL: FORM & HISTORY (FROSTED GLASS CARD)
+           ========================================================= */
+        .admin-content {
+            width: 440px;
+            display: flex;
+            flex-direction: column;
+            background: var(--glass-surface);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            border-radius: 28px;
+            padding: 22px 24px;
+            border: 1.5px solid var(--glass-border);
+            overflow-y: auto;
+            box-shadow: var(--glass-shadow);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .admin-content::-webkit-scrollbar { width: 5px; }
+        .admin-content::-webkit-scrollbar-thumb { background: var(--theme-amber); border-radius: 10px; }
+        
+        .section-header-glass {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.65);
+        }
+        .header-left-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .entry-badge {
+            background: #ffffff;
+            color: var(--theme-amber);
+            border: 1px solid var(--theme-amber-border);
+            font-size: 11.5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        /* Animated 10-Row Progress Bar */
+        .bunch-progress-wrap {
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.55);
+            border-radius: 10px;
+            height: 7px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.7);
+        }
+        .bunch-progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+            border-radius: 10px;
+            transition: width 0.4s var(--ease-smooth);
+        }
+        .bunch-progress-bar.completed {
+            background: linear-gradient(90deg, #16a34a, #15803d);
+        }
+
+        .advanced-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .full-width { grid-column: span 2; }
+        
+        /* Label & Mic Styling */
+        .form-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-weight: 800;
+            color: var(--text-body);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .btn-mic {
+            background: var(--theme-amber-light);
+            border: 1px solid var(--theme-amber-border);
+            color: var(--theme-amber);
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 11.5px;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.25s;
+            padding: 0;
+            outline: none;
+        }
+        .btn-mic:hover { background: var(--theme-amber); color: #fff; transform: scale(1.1); }
+        .btn-mic.recording { background: #ef4444; color: #fff; border-color: #ef4444; animation: pulseMic 1.2s infinite; }
+
+        .form-group input:not(.inline-input), .form-group textarea {
+            width: 100%;
+            padding: 10px 13px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 13px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.25s ease;
+        }
+        .form-group textarea { resize: vertical; min-height: 52px; }
+        .form-group input:not(.inline-input):focus, .form-group textarea:focus {
+            border-color: var(--theme-amber);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(221, 122, 25, 0.14);
+        }
+        
+        /* Banch Number Top Control Group */
+        .banch-control-row {
+            display: flex;
+            gap: 7px;
+            align-items: stretch;
+            background: rgba(255, 255, 255, 0.55);
+            padding: 6px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.85);
+        }
+        .banch-control-row input {
+            flex: 1;
+            font-size: 16px !important;
+            font-weight: 900 !important;
+            text-align: center;
+            background: #ffffff !important;
+            color: var(--theme-amber) !important;
+            border-radius: 10px !important;
+        }
+        .btn-next-bunch {
+            background: var(--theme-amber);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 0 13px;
+            font-size: 11.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .btn-next-bunch:hover { background: #b45309; transform: translateY(-1px); }
+        .btn-save-bunch {
+            background: #ffffff;
+            color: #15803d;
+            border: 1px solid rgba(21, 128, 61, 0.25);
+            border-radius: 10px;
+            padding: 0 12px;
+            font-size: 11.5px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-save-bunch:hover { background: #15803d; color: #ffffff; }
+
+        /* Custom Composite Fields */
+        .composite-field {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            border-radius: 13px;
+            padding: 8px 11px;
+            font-size: 13px;
+        }
+        .composite-field .static-text { color: var(--text-muted); font-weight: 800; white-space: nowrap; }
+        .composite-field input.inline-input, .composite-field select.inline-select {
+            border: 1px solid rgba(221, 122, 25, 0.3);
+            border-radius: 8px;
+            padding: 5px 8px;
+            font-size: 13px;
+            font-weight: 700;
+            outline: none;
+            background: #fff;
+            color: var(--text-dark);
+        }
+
+        .btn-add {
+            background: #ffffff;
+            color: var(--theme-amber);
+            border: 1px solid rgba(255, 255, 255, 0.95);
+            padding: 13px 18px;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 13.5px;
+            cursor: pointer;
+            transition: all 0.25s var(--ease-smooth);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 9px;
+            width: 100%;
+            grid-column: span 2;
+            box-shadow: var(--pill-btn-shadow);
+        }
+        .btn-add:hover {
+            background: var(--theme-amber);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(221, 122, 25, 0.3);
+        }
+
+        .action-buttons-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            grid-column: span 2;
+            margin-top: 4px;
+        }
+        .btn-action {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            border-radius: 13px;
+            font-weight: 800;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            background: rgba(255, 255, 255, 0.78);
+            color: var(--text-dark);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .btn-action i { color: var(--theme-amber); }
+        .btn-action:hover {
+            background: #ffffff;
+            color: var(--theme-amber);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.1);
+        }
+        .btn-danger-outline {
+            grid-column: span 2;
+            background: rgba(254, 226, 226, 0.65);
+            color: #dc2626;
+            border: 1px dashed rgba(220, 38, 38, 0.4);
+        }
+        .btn-danger-outline i { color: #dc2626; }
+        .btn-danger-outline:hover { background: #dc2626; color: #fff; }
+        .btn-danger-outline:hover i { color: #fff; }
+
+        /* =========================================================
+           BUNCH HISTORY PANEL STYLING (FROSTED CARDS)
+           ========================================================= */
+        #historyViewPanel { display: none; flex-direction: column; height: 100%; animation: fadeInGlass 0.35s var(--ease-smooth); }
+        
+        .history-toolbar { display: flex; gap: 6px; margin-bottom: 12px; }
+        .history-search-box { position: relative; flex: 1; }
+        .history-search-box i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--theme-amber); font-size: 13.5px; }
+        .history-search-box input {
+            width: 100%;
+            padding: 9px 12px 9px 36px;
+            border-radius: 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.8);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+        }
+        .history-search-box input:focus { border-color: var(--theme-amber); background: #fff; }
+
+        .btn-backup-tool {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            color: var(--theme-amber);
+            border-radius: 12px;
+            padding: 0 11px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-backup-tool:hover { background: #ffffff; transform: translateY(-1px); }
+
+        .history-list-container {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            padding-right: 4px;
+            margin-bottom: 12px;
+        }
+        .history-list-container::-webkit-scrollbar { width: 4px; }
+        .history-list-container::-webkit-scrollbar-thumb { background: var(--theme-amber); border-radius: 10px; }
+
+        .bunch-card {
+            background: rgba(255, 255, 255, 0.68);
+            border: 1.5px solid rgba(255, 255, 255, 0.88);
+            border-radius: 20px;
+            padding: 13px 14px;
+            cursor: pointer;
+            transition: all 0.25s var(--ease-smooth);
+            position: relative;
+        }
+        .bunch-card:hover {
+            background: rgba(255, 255, 255, 0.92);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(45, 28, 10, 0.1);
+        }
+        .bunch-card.active-bunch {
+            border-color: var(--theme-amber);
+            background: #ffffff;
+            box-shadow: 0 10px 25px rgba(221, 122, 25, 0.18);
+        }
+
+        .bunch-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .bunch-circle-badge { display: flex; align-items: center; gap: 10px; }
+        .bunch-num-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: var(--theme-amber-light);
+            color: var(--theme-amber);
+            font-weight: 900;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--theme-amber-border);
+            flex-shrink: 0;
+        }
+        .bunch-card.active-bunch .bunch-num-circle { background: var(--theme-amber); color: #ffffff; }
+        .bunch-meta-title h4 { font-family: 'Merriweather', serif; font-size: 14.5px; font-weight: 900; color: var(--text-dark); margin: 0; }
+        .bunch-meta-title span { font-size: 11px; color: var(--text-muted); font-weight: 600; display: block; }
+
+        .bunch-count-tag { font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; background: var(--theme-amber-light); color: var(--theme-amber); }
+        .bunch-count-tag.full { background: rgba(21, 128, 61, 0.14); color: #15803d; }
+
+        .bunch-details-row {
+            font-size: 11.5px;
+            color: var(--text-body);
+            font-weight: 600;
+            background: rgba(255, 252, 247, 0.85);
+            padding: 7px 10px;
+            border-radius: 11px;
+            border: 1px dashed rgba(221, 122, 25, 0.3);
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .bunch-card-actions { display: flex; gap: 6px; }
+        .btn-bunch-sm {
+            flex: 1;
+            padding: 6px 8px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 10px;
+            border: 1px solid rgba(221, 122, 25, 0.25);
+            background: #ffffff;
+            color: var(--theme-amber);
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            text-transform: uppercase;
+        }
+        .btn-bunch-sm:hover { background: var(--theme-amber); color: #ffffff; }
+        .btn-bunch-del { flex: 0 0 32px; color: #dc2626; border-color: rgba(220, 38, 38, 0.25); }
+        .btn-bunch-del:hover { background: #dc2626; color: #fff; }
+
+        .empty-history-state { text-align: center; padding: 40px 15px; color: var(--text-muted); }
+        .empty-history-state i { font-size: 42px; color: var(--theme-amber); opacity: 0.6; margin-bottom: 10px; display: block; }
+        .empty-history-state h5 { font-family: 'Merriweather', serif; font-weight: 900; color: var(--text-dark); font-size: 15px; margin-bottom: 5px; }
+        .empty-history-state p { font-size: 12.5px; margin: 0; }
+
+        /* TOAST NOTIFICATION */
+        .zp-toast {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(255, 253, 250, 0.95);
+            backdrop-filter: blur(14px);
+            color: var(--text-dark);
+            padding: 13px 22px;
+            border-radius: 18px;
+            font-size: 13px;
+            font-weight: 800;
+            box-shadow: 0 15px 35px rgba(45, 28, 10, 0.25);
+            border: 1.5px solid #ffffff;
+            border-left: 5px solid var(--theme-amber);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+            transition: all 0.3s var(--ease-smooth);
+        }
+        .zp-toast.show { opacity: 1; transform: translateY(0); }
+
+        /* =========================================================
+           RIGHT PREVIEW CANVAS (FROSTED GLASS FRAME)
+           ========================================================= */
+        .admin-preview {
+            flex: 1;
+            background: rgba(255, 252, 247, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 28px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+            position: relative;
+            border: 1.5px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+        .document-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            transform-origin: center center;
+            transition: transform 0.35s var(--ease-smooth);
+            transform: scale(0.48);
+        }
+        .register-page.flip-anim {
+            animation: paperFlip 0.45s var(--ease-smooth);
+        }
+
+        /* FLOATING TOP BAR IN PREVIEW */
+        .preview-top-bar {
+            position: absolute;
+            top: 15px;
+            left: 18px;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .preview-bunch-pill {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            color: var(--text-dark);
+            padding: 7px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(45, 28, 10, 0.12);
+            border: 1px solid #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .preview-bunch-pill span { color: var(--theme-amber); }
+
+        .paper-mode-switch {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px;
+            border-radius: 30px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 4px 14px rgba(45, 28, 10, 0.1);
+        }
+        .paper-mode-btn {
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .paper-mode-btn.active {
+            background: var(--theme-amber);
+            color: #fff;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 50;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(10px);
+            padding: 5px 8px;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(45, 28, 10, 0.12);
+        }
+        .zoom-pct-label {
+            color: var(--text-dark);
+            font-size: 11.5px;
+            font-weight: 800;
+            min-width: 44px;
+            text-align: center;
+        }
+        .zoom-controls button {
+            background: var(--theme-amber-light);
+            color: var(--theme-amber);
+            border: none;
+            border-radius: 10px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .zoom-controls button:hover { background: var(--theme-amber); color: #ffffff; }
+
+        /* =========================================================
+           OFFICIAL REGISTER PAGE STRUCTURE (LEGAL & A4 UNCHANGED FOR PRINT)
+           ========================================================= */
+        .register-page { 
+            width: 356mm; 
+            min-height: 216mm; 
+            background: #ffffff;
+            color: #000000;
+            padding: 15mm; 
+            position: relative;
+            box-sizing: border-box;
+            box-shadow: 0 25px 60px rgba(35, 20, 5, 0.45);
+            font-family: 'Times New Roman', Times, serif; 
+            transition: width 0.3s ease, height 0.3s ease, padding 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 480px; height: auto; opacity: 0.06; pointer-events: none; z-index: 0; user-select: none; }
+        .scale-content { max-height: 52px; overflow: hidden; display: block; width: 100%; word-wrap: break-word; }
+
+        /* STRICT 1 PAGE A4 MODIFICATIONS */
+        .register-page.a4-size {
+            width: 297mm !important;
+            height: 209mm !important; 
+            max-height: 209mm !important;
+            padding: 6mm 10mm 10mm 10mm !important; 
+            overflow: hidden !important; 
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex-direction: column !important; 
+        }
+        .register-page.a4-size .watermark { width: 300px !important; }
+        .register-page.a4-size .scale-content { max-height: 48px !important; }
+        .register-page.a4-size .reg-official-header { min-height: 40px !important; margin-bottom: 4px !important; padding-bottom: 2px !important; flex-shrink: 0 !important; }
+        .register-page.a4-size .reg-wb-logo { height: 40px !important; }
+        .register-page.a4-size .zp-title { font-size: 22px !important; margin-bottom: 1px !important; }
+        .register-page.a4-size .zp-subtitle { font-size: 15px !important; }
+        .register-page.a4-size .reg-page-circle { width: 38px !important; height: 38px !important; font-size: 16px !important; border-width: 1.5px !important;}
+        .register-page.a4-size .reg-page-label { font-size: 16px !important; }
+        .register-page.a4-size .reg-table { flex-grow: 1 !important; height: 100% !important; width: 100% !important; }
+        .register-page.a4-size .reg-table th, .register-page.a4-size .reg-table td { padding: 4px 6px !important; line-height: 1.2 !important; }
+        .register-page.a4-size .reg-table tbody tr { height: 10% !important; }
+        .register-page.a4-size .reg-table tbody td { vertical-align: top !important; }
+
+        .reg-official-header {
+            position: relative;
+            text-align: center;
+            margin-bottom: 8px; 
+            border-bottom: 3px double #000;
+            padding-bottom: 5px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 65px; 
+            z-index: 1; 
+        }
+        .reg-wb-logo { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 55px; width: auto; margin-top: -2px; z-index: 5; }
+        .reg-page-info { position: absolute; right: 0; top: 35%; transform: translateY(-50%); display: flex; align-items: center; gap: 10px; z-index: 5; }
+        .reg-page-label { font-size: 18px; font-weight: bold; color: #000; }
+        .reg-page-circle { width: 48px; height: 48px; border: 2px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 20px; color: #000; outline: none; transition: 0.2s; background: transparent; }
+        .zp-title { font-size: 26px; font-weight: 900; color: #000; text-transform: uppercase; margin: 0 0 2px 0; letter-spacing: 1.2px; font-family: 'Times New Roman', Times, serif; }
+        .zp-subtitle { font-size: 18px; font-weight: bold; color: #222; margin: 0; text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Times New Roman', Times, serif; }
+
+        .reg-table { width: 100%; border-collapse: collapse; font-family: 'Times New Roman', Times, serif; table-layout: fixed; position: relative; z-index: 1; flex-grow: 1; margin-bottom: 10px;}
+        .reg-table th, .reg-table td { border: 1.5px solid #000; padding: 6px 8px; vertical-align: top; text-align: left; word-wrap: break-word; overflow-wrap: break-word; word-break: break-word; }
+        .reg-table th { font-weight: bold; font-size: 14px; text-align: center; }
+        .reg-table td { font-size: 14px; color: #1a1a1a; line-height: 1.3; cursor: pointer; transition: background-color 0.2s; }
+        .reg-table tbody tr.new-row-flash td { animation: rowHighlight 1.2s ease; }
+        .reg-table tbody tr:hover td { background-color: rgba(221, 122, 25, 0.08); } 
+        .reg-table td.center { text-align: center; }
+        .reg-table th:nth-child(1) { width: 6%; }  
+        .reg-table th:nth-child(2) { width: 22%; } 
+        .reg-table th:nth-child(3) { width: 17%; } 
+        .reg-table th:nth-child(4) { width: 20%; } 
+        .reg-table th:nth-child(5) { width: 25%; } 
+        .reg-table th:nth-child(6) { width: 10%; } 
+
+        .credit-footer {
+            position: absolute;
+            bottom: 4mm;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+        .register-page.a4-size .credit-footer { bottom: 2mm !important; font-size: 9px !important; }
+
+        @media (max-width: 1400px) { .document-wrapper { transform: scale(0.40); } }
+        
+        /* GLOBAL STRICT PRINT RULES */
+        @media print {
+            html, body { width: 100% !important; height: 100% !important; background: #ffffff !important; padding: 0 !important; margin: 0 !important; overflow: hidden !important; box-sizing: border-box !important; }
+            .tricolor-strip, .official-white-header, .admin-sidebar, .admin-content, #login-screen, .zoom-controls, .preview-top-bar, .zp-toast, .app-modal-backdrop, .tricolor-loader-overlay { display: none !important; }
+            .admin-dashboard-container { display: block; padding: 0; margin: 0; }
+            .app-screen { display: none !important; }
+            .active-screen { display: block !important; opacity: 1; animation: none !important; filter: none !important; }
+            .admin-preview { border: none; background: transparent; padding: 0; display: block; box-shadow: none; backdrop-filter: none;}
+            .document-wrapper { transform: scale(1) !important; margin: 0 !important; display: block; padding: 0; transition: none !important;}
+            .register-page { box-shadow: none !important; margin: 0 auto !important; animation: none !important; }
+            .credit-footer { color: #000; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP TRICOLOR STRIP -->
+    <div class="tricolor-strip">
+        <div class="saffron"></div>
+        <div class="white"></div>
+        <div class="green"></div>
+    </div>
+
+    <!-- CLEAN WHITE OFFICIAL HEADER -->
+    <header class="official-white-header">
+        <div class="header-inner">
+            <div class="header-meta-left d-none d-lg-flex">
+                <span><i class="fa fa-envelope me-1" style="color: var(--theme-amber);"></i> tourism.psbzp@gmail.com</span>
+                <span>|</span>
+                <span><i class="fa fa-phone me-1" style="color: var(--theme-amber);"></i> 0341-2252627</span>
+            </div>
+
+            <div class="header-center-brand mx-auto">
+                <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="Govt Logo" crossorigin="anonymous">
+                <h1>Paschim Bardhaman Zilla Parishad</h1>
+                <h2>Official Engineering & Work Registry Portal</h2>
+            </div>
+
+            <div class="header-meta-right d-none d-lg-flex">
+                <span class="portal-access-tag">
+                    <i class="fa fa-shield-alt"></i> Admin / Staff Authorized Access Only
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- LOGIN SCREEN (FROSTED CREAM GLASS CARD) -->
+    <div id="login-screen" class="app-screen active-screen">
+        <div class="login-box">
+            <div class="glass-icon-box mb-3">
+                <i class="fa fa-user-tie"></i>
+            </div>
+            <span class="glass-category-label">Secure ZP Admin Portal 6.0</span>
+            <h2 class="glass-serif-title" style="font-size: 25px; margin-bottom: 4px;">Admin Login</h2>
+            <p style="color: var(--text-body); font-weight: 500; font-size: 14px; margin-bottom: 0;">
+                District Engineer Section — Authorized verification via registered email and OTP.
+            </p>
+
+            <hr class="glass-divider">
+            
+            <div id="email-section">
+                <div class="form-floating-custom">
+                    <i class="fa fa-envelope"></i>
+                    <input type="email" id="auth-email" placeholder="Enter Authorized Email">
+                </div>
+                <button class="btn-pill-white" onclick="sendOTP()" id="btn-get-otp">
+                    Get OTP <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div id="otp-section" style="display:none;">
+                <div class="form-floating-custom">
+                    <i class="fa fa-key"></i>
+                    <input type="text" id="auth-otp" placeholder="Enter 6-Digit OTP" maxlength="6">
+                </div>
+                <button class="btn-pill-white" onclick="verifyOTP()" id="btn-verify-otp">
+                    Secure Login <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+            
+            <div id="auth-msg" style="display:none; margin-top:15px; font-weight: 700; font-size: 13.5px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- SIMPLE TRI-COLOUR SMALL CIRCLE LOADER WITH WB GOVT LOGO -->
+    <div id="tricolorLoaderOverlay" class="tricolor-loader-overlay">
+        <div class="tricolor-circle-box">
+            <div class="tricolor-ring"></div>
+            <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="WB Govt Logo" class="tricolor-center-logo" crossorigin="anonymous">
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD SCREEN -->
+    <div id="main-dashboard" class="app-screen">
+        <div class="admin-dashboard-container">
+            
+            <!-- LEFT SIDEBAR -->
+            <aside class="admin-sidebar">
+                <div class="sidebar-user">
+                    <img src="https://cgasansol.github.io/nexusinfotech/founder.jpg" alt="Admin">
+                    <div>
+                        <h4>GOURAB LAYAK</h4>
+                        <p>D.E Section Admin User</p>
+                    </div>
+                </div>
+                
+                <ul class="sidebar-menu">
+                    <li id="menuDataEntry" class="active" onclick="switchTab('entry')">
+                        <a href="javascript:void(0)">
+                            <span class="menu-left"><i class="fa fa-book"></i> D.E Section Bunch List Registry</span>
+                        </a>
+                    </li>
+                    <li id="menuHistory" onclick="switchTab('history')">
+                        <a href="javascript:void(0)">
+                            <span class="menu-left"><i class="fa fa-history"></i> Saved Bunch History</span>
+                            <span class="history-badge-pill" id="sidebarHistoryCount">0</span>
+                        </a>
+                    </li>
+                    <li onclick="createNewNextBunch()">
+                        <a href="javascript:void(0)">
+                            <span class="menu-left"><i class="fa fa-plus-circle"></i> Start Next Bunch (+1)</span>
+                        </a>
+                    </li>
+                    <li onclick="secureLogout()">
+                        <a href="javascript:void(0)" style="color: #dc2626;">
+                            <span class="menu-left"><i class="fa fa-sign-out-alt" style="background: rgba(220,38,38,0.12); color: #dc2626;"></i> Secure Logout</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Quick Access Bunch Pills in Sidebar -->
+                <div class="sidebar-recent-box">
+                    <div class="sidebar-recent-title">
+                        <span><i class="fa fa-layer-group me-1"></i> Quick Bunch Switch</span>
+                    </div>
+                    <div class="sidebar-bunch-pills" id="sidebarQuickPills"></div>
+                </div>
+            </aside>
+
+            <!-- MIDDLE PANEL: DATA ENTRY OR BUNCH HISTORY -->
+            <div class="admin-content">
+                
+                <!-- VIEW 1: DATA ENTRY FORM -->
+                <div id="entryViewPanel">
+                    <div class="section-header-glass">
+                        <div class="header-left-group">
+                            <div class="glass-icon-box" style="width: 44px; height: 44px; font-size: 17px; border-radius: 13px;">
+                                <i class="fa fa-edit"></i>
+                            </div>
+                            <div>
+                                <span class="glass-category-label" style="margin-bottom: 1px;">District Engineer Section</span>
+                                <h2 class="glass-serif-title" style="font-size: 18px;">Table Data Entry</h2>
+                            </div>
+                        </div>
+                        <span class="entry-badge" title="Total rows in table">Entries: <span id="entryCount">0</span> / 10</span>
+                    </div>
+
+                    <!-- Animated Progress Bar for 10 Entries -->
+                    <div class="bunch-progress-wrap" title="Page Capacity (10 Entries Max)">
+                        <div class="bunch-progress-bar" id="entryProgressBar"></div>
+                    </div>
+                    
+                    <div class="advanced-form-grid">
+                        <div class="form-group full-width">
+                            <label>Banch Number</label>
+                            <div class="banch-control-row">
+                                <input type="text" id="inpPageNo" value="112" oninput="updatePageNo()" title="Current Banch Number">
+                                <button type="button" class="btn-save-bunch" onclick="manualSaveCurrentBunch()" title="Save this Bunch to History">
+                                    <i class="fa fa-save"></i> Save
+                                </button>
+                                <button type="button" class="btn-next-bunch" onclick="createNewNextBunch()" title="Save current bunch & start next Banch Number">
+                                    <i class="fa fa-plus"></i> Next Bunch
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>SL No.</label>
+                            <input type="text" id="inpSl" placeholder="e.g. 1177">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Agency / Contractor Name 
+                                <button type="button" class="btn-mic" onclick="startVoiceTyping('inpAgency', this)" title="Click and speak">
+                                    <i class="fa fa-microphone"></i>
+                                </button>
+                            </label>
+                            <textarea id="inpAgency" placeholder="e.g. Prabhat Infra Buildcon Construction"></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>W/O NO. & Date</label>
+                            <div class="composite-field">
+                                <span class="static-text">PSBZP/WO/</span>
+                                <input type="text" class="inline-input" id="inpWoNum" placeholder="776" style="width: 70px;">
+                                <span class="static-text">dtd/-</span>
+                                <input type="text" class="inline-input" id="inpWoDate" placeholder="24.02.2026" style="flex: 1;">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>e-NIT NO. Details</label>
+                            <div class="composite-field">
+                                <span class="static-text">e-NIT No.</span>
+                                <input type="text" class="inline-input" id="inpEnitNum" placeholder="105" style="width: 65px;">
+                                <span class="static-text">of</span>
+                                <select id="inpEnitYear" class="inline-select">
+                                    <option value="2016-2017">2016-2017</option>
+                                    <option value="2017-2018">2017-2018</option>
+                                    <option value="2018-2019">2018-2019</option>
+                                    <option value="2019-2020">2019-2020</option>
+                                    <option value="2020-2021">2020-2021</option>
+                                    <option value="2021-2022">2021-2022</option>
+                                    <option value="2022-2023">2022-2023</option>
+                                    <option value="2023-2024">2023-2024</option>
+                                    <option value="2024-2025">2024-2025</option>
+                                    <option value="2025-2026" selected>2025-2026</option>
+                                    <option value="2026-2027">2026-2027</option>
+                                </select>
+                                <span class="static-text" style="width:100%; margin-top:4px;">Work Sl No.</span>
+                                <input type="text" class="inline-input" id="inpEnitSl" placeholder="01" style="flex: 1;">
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label style="margin-bottom: 0;">Name of Work
+                                    <button type="button" class="btn-mic" onclick="startVoiceTyping('inpWork', this)" title="Click and speak">
+                                        <i class="fa fa-microphone"></i>
+                                    </button>
+                                </label>
+                                <div style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 800; color: var(--text-body); text-transform: uppercase;">
+                                    <span>Text Size:</span>
+                                    <select id="inpWorkFontSize" style="border: 1px solid rgba(221, 122, 25, 0.35); border-radius: 6px; padding: 2px 5px; font-weight: 700; outline: none; background: #fff; color: var(--text-dark); cursor: pointer;">
+                                        <option value="6">6</option>
+                                        <option value="7">7</option>
+                                        <option value="8">8</option>
+                                        <option value="9">9</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14" selected>14 (Normal)</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
+                                        <option value="17">17</option>
+                                        <option value="18">18</option>
+                                        <option value="19">19</option>
+                                        <option value="20">20</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <textarea id="inpWork" style="min-height: 72px;" placeholder="e.g. Repair & Installation of solar street light..."></textarea>
+                        </div>
+
+                        <button class="btn-add" onclick="addTableRow()">
+                            Add Entry to Table <i class="fa fa-arrow-right"></i>
+                        </button>
+
+                        <div class="action-buttons-grid">
+                            <button class="btn-action" onclick="printLegal()"><i class="fa fa-print"></i> Print Legal</button>
+                            <button class="btn-action" onclick="printA4()"><i class="fa fa-file-pdf"></i> Print A4 (STRICT 1 PAGE)</button>
+                            <button class="btn-action" onclick="fillSampleData()"><i class="fa fa-magic"></i> Fill Sample</button>
+                            <button class="btn-action" onclick="downloadDoc(this)"><i class="fa fa-image"></i> Save Image</button>
+                            <button class="btn-action btn-danger-outline" onclick="clearTable()"><i class="fa fa-trash-alt"></i> Clear All</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: SAVED BUNCH HISTORY SECTION -->
+                <div id="historyViewPanel">
+                    <div class="section-header-glass">
+                        <div class="header-left-group">
+                            <div class="glass-icon-box" style="width: 44px; height: 44px; font-size: 17px; border-radius: 13px;">
+                                <i class="fa fa-history"></i>
+                            </div>
+                            <div>
+                                <span class="glass-category-label" style="margin-bottom: 1px;">Archive Registry</span>
+                                <h2 class="glass-serif-title" style="font-size: 18px;">Saved Bunch History</h2>
+                            </div>
+                        </div>
+                        <span class="entry-badge">Total: <span id="historyPanelTotal">0</span></span>
+                    </div>
+
+                    <div class="history-toolbar">
+                        <div class="history-search-box">
+                            <i class="fa fa-search"></i>
+                            <input type="text" id="inpHistorySearch" placeholder="Search Banch No (112, 113), SL, Agency..." oninput="renderHistoryList()">
+                        </div>
+                        <button class="btn-backup-tool" onclick="exportAllBunchesJson()" title="Download Backup">
+                            <i class="fa fa-download"></i>
+                        </button>
+                        <button class="btn-backup-tool" onclick="document.getElementById('importBackupInput').click()" title="Restore Backup">
+                            <i class="fa fa-upload"></i>
+                        </button>
+                        <input type="file" id="importBackupInput" accept=".json" style="display:none;" onchange="importAllBunchesJson(event)">
+                    </div>
+
+                    <!-- Dynamic List of Saved Bunches -->
+                    <div class="history-list-container" id="historyListContainer"></div>
+
+                    <!-- Quick Print / Actions for Currently Selected History Bunch -->
+                    <div style="border-top: 1px solid rgba(255,255,255,0.65); padding-top: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn-action" onclick="printLegal()">
+                            <i class="fa fa-print"></i> Print Legal
+                        </button>
+                        <button class="btn-action" onclick="printA4()">
+                            <i class="fa fa-file-pdf"></i> Print A4
+                        </button>
+                        <button class="btn-action" onclick="downloadDoc(this)">
+                            <i class="fa fa-image"></i> Save Image
+                        </button>
+                        <button class="btn-action" onclick="switchTab('entry')">
+                            <i class="fa fa-edit"></i> Edit Entries
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RIGHT: PREVIEW PANEL -->
+            <div class="admin-preview">
+                
+                <!-- Active Bunch Indicator & Paper Size Preview Switch -->
+                <div class="preview-top-bar">
+                    <div class="preview-bunch-pill">
+                        <i class="fa fa-eye" style="color: var(--theme-amber);"></i> Banch Number: <span><strong id="previewBadgeBanchNo">112</strong></span>
+                    </div>
+                    <div class="paper-mode-switch" title="Preview Paper Layout">
+                        <button class="paper-mode-btn active" id="btnModeLegal" onclick="togglePreviewPaperMode('Legal')">Legal</button>
+                        <button class="paper-mode-btn" id="btnModeA4" onclick="togglePreviewPaperMode('A4')">A4</button>
+                    </div>
+                </div>
+
+                <!-- Floating Zoom Dock -->
+                <div class="zoom-controls">
+                    <button onclick="zoomPreview(-0.05)" title="Zoom Out"><i class="fa fa-search-minus"></i></button>
+                    <span class="zoom-pct-label" id="zoomPctLabel">48%</span>
+                    <button onclick="zoomPreview(0.05)" title="Zoom In"><i class="fa fa-search-plus"></i></button>
+                    <button onclick="resetZoom()" title="Reset Zoom"><i class="fa fa-sync"></i></button>
+                </div>
+
+                <div class="document-wrapper" id="docWrapper">
+                    <div class="register-page" id="registerNode">
+                        <img src="https://cgasansol.github.io/bunchlist/logo.png" class="watermark" alt="Govt Watermark" crossorigin="anonymous">
+
+                        <div class="reg-official-header">
+                            <img src="https://cgasansol.github.io/bunchlist/logo.png" alt="" class="reg-wb-logo" crossorigin="anonymous">
+                            <h1 class="zp-title">Paschim Bardhaman Zilla Parishad</h1>
+                            <h2 class="zp-subtitle">Engineer Section</h2>
+
+                            <div class="reg-page-info">
+                                <span class="reg-page-label">Banch Number</span>
+                                <div class="reg-page-circle" id="outPageNo" contenteditable="true" onblur="syncBanchNumber(this)" title="Click to edit">112</div>
+                            </div>
+                        </div>
+
+                        <table class="reg-table">
+                            <thead>
+                                <tr>
+                                    <th>SL NO.</th>
+                                    <th>Name of Agency/Contractor</th>
+                                    <th>W/O NO.</th>
+                                    <th>e-NIT NO.</th>
+                                    <th>Name of work.</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                        
+                        <!-- Credit Label -->
+                        <div class="credit-footer">Created and Designed by Gourab Layak, Nexus Infotech Private Limited</div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <!-- STANDALONE APP CUSTOM MODAL OVERLAY -->
+    <div id="appModalBackdrop" class="app-modal-backdrop">
+        <div class="app-modal-card" onclick="event.stopPropagation()">
+            <div id="appModalIconBox" class="app-modal-icon theme-amber">
+                <i id="appModalIcon" class="fa fa-bell"></i>
+            </div>
+            <span id="appModalTag" class="app-modal-tag">PSBZP Portal System</span>
+            <h3 id="appModalTitle" class="app-modal-title">System Notification</h3>
+            <p id="appModalMessage" class="app-modal-message">Message goes here...</p>
+
+            <div id="appModalInputWrap" class="app-modal-input-wrap">
+                <input type="text" id="appModalInput" placeholder="Enter value...">
+            </div>
+
+            <hr class="app-modal-divider">
+
+            <div class="app-modal-actions">
+                <button type="button" id="appModalCancelBtn" class="btn-modal-cancel">Cancel</button>
+                <button type="button" id="appModalConfirmBtn" class="btn-modal-confirm">
+                    <span id="appModalConfirmText">Continue</span> <i class="fa fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="zpToast" class="zp-toast">
+        <i class="fa fa-check-circle" style="color: var(--theme-amber); font-size: 18px;"></i>
+        <span id="zpToastMsg">Bunch saved successfully!</span>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        // ==========================================
+        // STANDALONE APP CUSTOM MODAL ENGINE
+        // ==========================================
+        let activeModalResolver = null;
+
+        function openAppModal({
+            tag = 'PSBZP D.E Section App',
+            title = 'Notification',
+            message = '',
+            type = 'amber',
+            icon = 'fa-bell',
+            mode = 'alert',
+            confirmText = 'OK, Got It',
+            cancelText = 'Cancel',
+            placeholder = '',
+            defaultValue = ''
+        }) {
+            return new Promise((resolve) => {
+                activeModalResolver = { resolve, mode };
+
+                const backdrop = document.getElementById('appModalBackdrop');
+                const iconBox = document.getElementById('appModalIconBox');
+                const iconEl = document.getElementById('appModalIcon');
+                const tagEl = document.getElementById('appModalTag');
+                const titleEl = document.getElementById('appModalTitle');
+                const msgEl = document.getElementById('appModalMessage');
+                const inputWrap = document.getElementById('appModalInputWrap');
+                const inputEl = document.getElementById('appModalInput');
+                const cancelBtn = document.getElementById('appModalCancelBtn');
+                const confirmBtn = document.getElementById('appModalConfirmBtn');
+                const confirmTextEl = document.getElementById('appModalConfirmText');
+
+                iconBox.className = `app-modal-icon theme-${type}`;
+                iconEl.className = `fa ${icon}`;
+                tagEl.className = `app-modal-tag ${type === 'danger' ? 'danger-tag' : ''}`;
+                tagEl.innerText = tag;
+                titleEl.innerText = title;
+                msgEl.innerText = message;
+
+                confirmBtn.className = `btn-modal-confirm ${type === 'danger' ? 'danger-btn' : ''}`;
+                confirmTextEl.innerText = confirmText;
+                cancelBtn.innerText = cancelText;
+
+                if (mode === 'alert') {
+                    cancelBtn.style.display = 'none';
+                    inputWrap.style.display = 'none';
+                } else if (mode === 'confirm') {
+                    cancelBtn.style.display = 'block';
+                    inputWrap.style.display = 'none';
+                } else if (mode === 'prompt') {
+                    cancelBtn.style.display = 'block';
+                    inputWrap.style.display = 'block';
+                    inputEl.placeholder = placeholder;
+                    inputEl.value = defaultValue;
+                }
+
+                backdrop.classList.add('active');
+
+                setTimeout(() => {
+                    if (mode === 'prompt') {
+                        inputEl.focus();
+                        inputEl.select();
+                    } else {
+                        confirmBtn.focus();
+                    }
+                }, 80);
+            });
+        }
+
+        function closeAppModal(confirmed) {
+            const backdrop = document.getElementById('appModalBackdrop');
+            const inputEl = document.getElementById('appModalInput');
+            backdrop.classList.remove('active');
+
+            if (!activeModalResolver) return;
+            const { resolve, mode } = activeModalResolver;
+            activeModalResolver = null;
+
+            if (mode === 'prompt') {
+                resolve(confirmed ? inputEl.value.trim() : null);
+            } else if (mode === 'confirm') {
+                resolve(Boolean(confirmed));
+            } else {
+                resolve(true);
+            }
+        }
+
+        document.getElementById('appModalConfirmBtn').addEventListener('click', () => closeAppModal(true));
+        document.getElementById('appModalCancelBtn').addEventListener('click', () => closeAppModal(false));
+        document.getElementById('appModalBackdrop').addEventListener('click', () => closeAppModal(false));
+
+        document.addEventListener('keydown', (e) => {
+            if (!activeModalResolver) return;
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeAppModal(false);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                closeAppModal(true);
+            }
+        });
+
+        window.alert = function(msg) {
+            openAppModal({
+                tag: 'System Notice',
+                title: 'Portal Alert',
+                message: msg,
+                type: 'amber',
+                icon: 'fa-info-circle',
+                mode: 'alert',
+                confirmText: 'Continue'
+            });
+        };
+
+        // ==========================================
+        // TOAST HELPER
+        // ==========================================
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('zpToast');
+            document.getElementById('zpToastMsg').innerText = msg;
+            toast.classList.add('show');
+            if(toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        // ==========================================
+        // PAPER FLIP ANIMATION TRIGGER
+        // ==========================================
+        function triggerPaperFlipAnimation() {
+            const node = document.getElementById('registerNode');
+            node.classList.remove('flip-anim');
+            void node.offsetWidth;
+            node.classList.add('flip-anim');
+        }
+
+        // ==========================================
+        // PREVIEW PAPER MODE SWITCH (LEGAL vs A4)
+        // ==========================================
+        function togglePreviewPaperMode(mode) {
+            const regNode = document.getElementById('registerNode');
+            const btnLegal = document.getElementById('btnModeLegal');
+            const btnA4 = document.getElementById('btnModeA4');
+
+            if (mode === 'A4') {
+                regNode.classList.add('a4-size');
+                btnA4.classList.add('active');
+                btnLegal.classList.remove('active');
+            } else {
+                regNode.classList.remove('a4-size');
+                btnLegal.classList.add('active');
+                btnA4.classList.remove('active');
+            }
+            triggerPaperFlipAnimation();
+            autoFitText();
+        }
+
+        // ==========================================
+        // TAB SWITCHING (DATA ENTRY vs HISTORY)
+        // ==========================================
+        function switchTab(tabName) {
+            const entryPanel = document.getElementById('entryViewPanel');
+            const historyPanel = document.getElementById('historyViewPanel');
+            const menuEntry = document.getElementById('menuDataEntry');
+            const menuHistory = document.getElementById('menuHistory');
+
+            if (tabName === 'history') {
+                entryPanel.style.display = 'none';
+                historyPanel.style.display = 'flex';
+                menuEntry.classList.remove('active');
+                menuHistory.classList.add('active');
+                renderHistoryList();
+            } else {
+                historyPanel.style.display = 'none';
+                entryPanel.style.display = 'block';
+                menuHistory.classList.remove('active');
+                menuEntry.classList.add('active');
+            }
+        }
+
+        // ==========================================
+        // EMAIL OTP LOGIN LOGIC WITH TRI-COLOUR CIRCLE LOADER
+        // ==========================================
+        emailjs.init("aPzoG_7K9PB6_fbxr"); 
+
+        let generatedOTP = null;
+
+        const authorizedEmails = [
+            "tourism.psbzp@gmail.com",
+            "admin2@gmail.com",
+            "gourablayak.zillaparishad@gmail.com"
+        ];
+
+        function showAuthMessage(msg, isError = false) {
+            const msgDiv = document.getElementById('auth-msg');
+            msgDiv.style.display = 'block';
+            msgDiv.style.color = isError ? '#dc2626' : '#15803d';
+            msgDiv.innerText = msg;
+        }
+
+        function sendOTP() {
+            const emailInput = document.getElementById('auth-email').value.trim();
+            const btn = document.getElementById('btn-get-otp');
+
+            if (!emailInput) {
+                showAuthMessage("Please enter an email address.", true);
+                return;
+            }
+
+            if (!authorizedEmails.includes(emailInput.toLowerCase())) {
+                showAuthMessage("Access Denied! Unauthorized Email.", true);
+                return;
+            }
+
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+            btn.disabled = true;
+
+            const templateParams = {
+                to_email: emailInput,
+                otp_code: generatedOTP
+            };
+
+            emailjs.send("service_ethdh28", "template_usu1hkw", templateParams)
+                .then(function(response) {
+                    document.getElementById('email-section').style.display = 'none';
+                    document.getElementById('otp-section').style.display = 'block';
+                    showAuthMessage("OTP sent successfully to your email!");
+                }, function(error) {
+                    console.error("FAILED...", error);
+                    showAuthMessage("Failed to send OTP. Try again.", true);
+                    btn.innerHTML = 'Get OTP <i class="fa fa-arrow-right"></i>';
+                    btn.disabled = false;
+                });
+        }
+
+        function verifyOTP() {
+            const userEnteredOTP = document.getElementById('auth-otp').value.trim();
+            
+            if (userEnteredOTP === generatedOTP) {
+                sessionStorage.setItem('regAuth', 'true');
+                startBlurredDashboardTransition();
+            } else {
+                showAuthMessage("Invalid OTP! Please check your email.", true);
+            }
+        }
+
+        // Opens Main Page Immediately with Blur + Tri-Colour Circle Logo Loader for 2-5 Seconds
+        function startBlurredDashboardTransition() {
+            const loginScreen = document.getElementById('login-screen');
+            const portal = document.getElementById('main-dashboard');
+            const loaderOverlay = document.getElementById('tricolorLoaderOverlay');
+
+            // Hide login screen & open dashboard in blurred state
+            loginScreen.classList.remove('active-screen');
+            loginScreen.style.display = 'none';
+
+            portal.style.display = 'flex';
+            portal.classList.add('active-screen', 'dashboard-blurred');
+            loadTableData();
+
+            // Show small Tri-Colour circular loader with WB Govt Logo
+            loaderOverlay.classList.add('active');
+
+            // Random loading duration between 2000ms (2 sec) and 5000ms (5 sec)
+            const randomDuration = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
+
+            setTimeout(() => {
+                portal.classList.remove('dashboard-blurred');
+                loaderOverlay.classList.remove('active');
+            }, randomDuration);
+        }
+
+        function executeLoginBypass() {
+            document.getElementById('login-screen').classList.remove('active-screen');
+            document.getElementById('login-screen').style.display = 'none';
+            
+            const portal = document.getElementById('main-dashboard');
+            portal.style.display = 'flex';
+            portal.classList.remove('dashboard-blurred');
+            portal.classList.add('active-screen');
+            
+            loadTableData();
+        }
+
+        function secureLogout() {
+            sessionStorage.removeItem('regAuth');
+            window.location.reload();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            setPrintPageSize('Legal');
+            updateZoomLabel();
+            if(sessionStorage.getItem('regAuth') === 'true') {
+                executeLoginBypass();
+            }
+        });
+
+        // ==========================================
+        // EDIT FEATURE
+        // ==========================================
+        let currentlyEditingRow = null;
+
+        function resetEditState() {
+            currentlyEditingRow = null;
+            const addBtn = document.querySelector('.btn-add');
+            addBtn.innerHTML = 'Add Entry to Table <i class="fa fa-arrow-right"></i>';
+            addBtn.style.background = ''; 
+            addBtn.style.color = '';
+        }
+
+        function editRow(row) {
+            currentlyEditingRow = row;
+            switchTab('entry');
+            
+            document.getElementById('inpSl').value = row.dataset.sl || row.cells[0].innerText.trim();
+            
+            let agency = row.dataset.rawAgency !== undefined ? row.dataset.rawAgency : row.cells[1].innerText.trim();
+            document.getElementById('inpAgency').value = agency;
+            
+            document.getElementById('inpWoNum').value = row.dataset.woNum || '';
+            document.getElementById('inpWoDate').value = row.dataset.woDate || '';
+            document.getElementById('inpEnitNum').value = row.dataset.enitNum || '';
+            if(row.dataset.enitYear) document.getElementById('inpEnitYear').value = row.dataset.enitYear;
+            document.getElementById('inpEnitSl').value = row.dataset.enitSl || '';
+            
+            let work = row.dataset.rawWork !== undefined ? row.dataset.rawWork : row.cells[4].innerText.trim();
+            document.getElementById('inpWork').value = work;
+            
+            if(row.dataset.workFontSize) {
+                document.getElementById('inpWorkFontSize').value = row.dataset.workFontSize;
+            } else {
+                document.getElementById('inpWorkFontSize').value = '14';
+            }
+
+            const addBtn = document.querySelector('.btn-add');
+            addBtn.innerHTML = '<i class="fa fa-save"></i> Update Entry';
+            addBtn.style.background = '#15803d';
+            addBtn.style.color = '#fff';
+        }
+
+        // ==========================================
+        // ZOOM FEATURE
+        // ==========================================
+        let currentZoom = window.innerWidth <= 1400 ? 0.40 : 0.48;
+        
+        function updateZoomLabel() {
+            const lbl = document.getElementById('zoomPctLabel');
+            if (lbl) lbl.innerText = Math.round(currentZoom * 100) + '%';
+        }
+
+        function zoomPreview(step) {
+            currentZoom += step;
+            if(currentZoom < 0.2) currentZoom = 0.2;
+            if(currentZoom > 1.5) currentZoom = 1.5;
+            document.getElementById('docWrapper').style.transform = `scale(${currentZoom})`;
+            updateZoomLabel();
+        }
+        
+        function resetZoom() {
+            currentZoom = window.innerWidth <= 1400 ? 0.40 : 0.48;
+            document.getElementById('docWrapper').style.transform = `scale(${currentZoom})`;
+            updateZoomLabel();
+        }
+
+        // ==========================================
+        // SMART AUTO FIT TEXT & FONT SCALING
+        // ==========================================
+        function autoFitText() {
+            const elements = document.querySelectorAll('.scale-content');
+            elements.forEach(el => {
+                let baseSize = el.getAttribute('data-base-size') ? parseFloat(el.getAttribute('data-base-size')) : 14;
+                el.style.fontSize = baseSize + 'px'; 
+                el.style.lineHeight = '1.3';
+                let currentSize = baseSize;
+                const minSize = 6; 
+                
+                while (el.scrollHeight > (el.clientHeight + 1) && currentSize > minSize) {
+                    currentSize -= 0.5;
+                    el.style.fontSize = currentSize + 'px';
+                }
+            });
+        }
+
+        // ==========================================
+        // VOICE TYPING (WITH CUSTOM OVERLAY ALERT)
+        // ==========================================
+        function startVoiceTyping(targetId, btnElement) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                openAppModal({
+                    tag: 'Voice Assistant',
+                    title: 'Browser Not Supported',
+                    message: 'Your browser does not support Voice Typing. Please use Google Chrome or Microsoft Edge.',
+                    type: 'amber',
+                    icon: 'fa-microphone-slash',
+                    mode: 'alert',
+                    confirmText: 'Got It'
+                });
+                return;
+            }
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-IN'; 
+
+            recognition.onstart = function() { btnElement.classList.add('recording'); };
+            recognition.onresult = function(event) {
+                let transcript = event.results[0][0].transcript;
+                transcript = transcript.charAt(0).toUpperCase() + transcript.slice(1).toLowerCase();
+                document.getElementById(targetId).value = transcript;
+                btnElement.classList.remove('recording');
+            };
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error", event.error);
+                btnElement.classList.remove('recording');
+                if(event.error === 'not-allowed') {
+                    openAppModal({
+                        tag: 'Microphone Permission',
+                        title: 'Access Denied',
+                        message: 'Microphone access denied. Please allow microphone permissions in your browser settings.',
+                        type: 'danger',
+                        icon: 'fa-microphone-slash',
+                        mode: 'alert',
+                        confirmText: 'Understood'
+                    });
+                }
+            };
+            recognition.onend = function() { btnElement.classList.remove('recording'); };
+            recognition.start();
+        }
+
+        // ==========================================
+        // BUNCH HISTORY & ARCHIVE MANAGEMENT LOGIC
+        // ==========================================
+        function getBunchHistoryMap() {
+            try {
+                const raw = localStorage.getItem('zpBunchHistoryMap');
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveBunchHistoryMap(mapObj) {
+            localStorage.setItem('zpBunchHistoryMap', JSON.stringify(mapObj));
+            updateHistoryBadgesAndPills();
+        }
+
+        function syncCurrentBunchToHistory(showNotification = false) {
+            const banchNo = (document.getElementById('inpPageNo').value || '').trim();
+            if (!banchNo) return;
+
+            const tbody = document.getElementById('tableBody');
+            const rows = tbody.querySelectorAll('tr');
+            const rowCount = rows.length;
+
+            if (rowCount === 0) {
+                if (showNotification) showToast(`Add at least 1 entry to save Banch No. ${banchNo}`);
+                return;
+            }
+
+            let firstSl = rows[0].dataset.sl || rows[0].cells[0].innerText.trim() || '-';
+            let lastSl = rows[rowCount - 1].dataset.sl || rows[rowCount - 1].cells[0].innerText.trim() || '-';
+            let slRange = (firstSl === lastSl) ? `SL: ${firstSl}` : `SL: ${firstSl} to ${lastSl}`;
+
+            let firstAgency = rows[0].dataset.rawAgency || rows[0].cells[1].innerText.trim() || 'N/A';
+            if (firstAgency.length > 42) firstAgency = firstAgency.substring(0, 42) + '...';
+
+            const now = new Date();
+            const timestampStr = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ', ' +
+                                 now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
+            const historyMap = getBunchHistoryMap();
+            historyMap[banchNo] = {
+                banchNo: banchNo,
+                tbodyHtml: tbody.innerHTML,
+                entryCount: rowCount,
+                slRange: slRange,
+                firstAgency: firstAgency,
+                lastSlNumeric: !isNaN(lastSl) ? parseInt(lastSl) : null,
+                updatedAt: timestampStr,
+                updatedTimeMs: Date.now()
+            };
+
+            saveBunchHistoryMap(historyMap);
+            if (showNotification) {
+                showToast(`Banch No. ${banchNo} (${rowCount} entries) saved in History!`);
+            }
+        }
+
+        function manualSaveCurrentBunch() {
+            syncCurrentBunchToHistory(true);
+            renderHistoryList();
+        }
+
+        async function createNewNextBunch() {
+            const currentBanch = (document.getElementById('inpPageNo').value || '').trim();
+            const currentRows = document.querySelectorAll('#tableBody tr');
+
+            if (currentRows.length > 0) {
+                syncCurrentBunchToHistory(false);
+            }
+
+            let nextSl = '';
+            if (currentRows.length > 0) {
+                const lastRow = currentRows[currentRows.length - 1];
+                const lastSlVal = lastRow.dataset.sl || lastRow.cells[0].innerText.trim();
+                if (lastSlVal && !isNaN(lastSlVal)) {
+                    nextSl = parseInt(lastSlVal) + 1;
+                }
+            }
+
+            let nextBanch = '113';
+            if (currentBanch && !isNaN(currentBanch)) {
+                nextBanch = (parseInt(currentBanch) + 1).toString();
+            } else {
+                const entered = await openAppModal({
+                    tag: 'New Bunch Setup',
+                    title: 'Enter New Banch Number',
+                    message: 'Please enter the Banch Number for the new registry page:',
+                    type: 'amber',
+                    icon: 'fa-hashtag',
+                    mode: 'prompt',
+                    placeholder: 'e.g. 113',
+                    defaultValue: '',
+                    confirmText: 'Create Bunch'
+                });
+                if (!entered) return;
+                nextBanch = entered;
+            }
+
+            resetEditState();
+
+            const historyMap = getBunchHistoryMap();
+            if (historyMap[nextBanch]) {
+                loadBunchFromHistory(nextBanch, false);
+                showToast(`Loaded existing Banch No. ${nextBanch}`);
+                return;
+            }
+
+            document.getElementById('inpPageNo').value = nextBanch;
+            document.getElementById('outPageNo').innerText = nextBanch;
+            document.getElementById('previewBadgeBanchNo').innerText = nextBanch;
+            document.getElementById('tableBody').innerHTML = '';
+            document.getElementById('inpSl').value = nextSl;
+
+            localStorage.setItem('zpTableData', '');
+            localStorage.setItem('zpBanchNo', nextBanch);
+
+            triggerPaperFlipAnimation();
+            updateStats();
+            updateHistoryBadgesAndPills();
+            switchTab('entry');
+            showToast(`Started new Banch No. ${nextBanch}`);
+        }
+
+        function loadBunchFromHistory(banchNo, switchToEntry = false) {
+            const historyMap = getBunchHistoryMap();
+            const bunchObj = historyMap[banchNo];
+            if (!bunchObj) return;
+
+            resetEditState();
+
+            document.getElementById('inpPageNo').value = bunchObj.banchNo;
+            document.getElementById('outPageNo').innerText = bunchObj.banchNo;
+            document.getElementById('previewBadgeBanchNo').innerText = bunchObj.banchNo;
+            document.getElementById('tableBody').innerHTML = bunchObj.tbodyHtml;
+
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                row.classList.remove('new-row-flash');
+                row.setAttribute("onclick", "editRow(this)");
+                row.setAttribute("ondblclick", "removeRow(this)");
+                const tds = row.querySelectorAll('td');
+                tds.forEach(td => {
+                    if(!td.querySelector('.scale-content')) {
+                        const content = td.innerHTML;
+                        td.innerHTML = `<div class="scale-content" data-base-size="14">${content}</div>`;
+                    }
+                });
+            });
+
+            if (bunchObj.lastSlNumeric) {
+                document.getElementById('inpSl').value = bunchObj.lastSlNumeric + 1;
+            } else {
+                document.getElementById('inpSl').value = '';
+            }
+
+            localStorage.setItem('zpTableData', bunchObj.tbodyHtml);
+            localStorage.setItem('zpBanchNo', bunchObj.banchNo);
+
+            triggerPaperFlipAnimation();
+            updateStats();
+            autoFitText();
+            renderHistoryList();
+            updateHistoryBadgesAndPills();
+
+            if (switchToEntry) {
+                switchTab('entry');
+            }
+            showToast(`Banch No. ${bunchObj.banchNo} opened in Live Preview!`);
+        }
+
+        function quickPrintBunch(banchNo, printMode, event) {
+            if (event) event.stopPropagation();
+            loadBunchFromHistory(banchNo, false);
+            setTimeout(() => {
+                if (printMode === 'A4') {
+                    printA4();
+                } else {
+                    printLegal();
+                }
+            }, 180);
+        }
+
+        async function deleteBunchFromHistory(banchNo, event) {
+            if (event) event.stopPropagation();
+            const confirmed = await openAppModal({
+                tag: 'Archive Management',
+                title: `Delete Banch No. ${banchNo}?`,
+                message: `Are you sure you want to permanently remove Banch No. ${banchNo} from Saved Bunch History?`,
+                type: 'danger',
+                icon: 'fa-trash-alt',
+                mode: 'confirm',
+                confirmText: 'Yes, Delete',
+                cancelText: 'Keep Bunch'
+            });
+            if (!confirmed) return;
+
+            const historyMap = getBunchHistoryMap();
+            delete historyMap[banchNo];
+            saveBunchHistoryMap(historyMap);
+            renderHistoryList();
+            showToast(`Banch No. ${banchNo} removed from History.`);
+        }
+
+        function exportAllBunchesJson() {
+            const historyMap = getBunchHistoryMap();
+            if (Object.keys(historyMap).length === 0) {
+                showToast("No saved bunches to export!");
+                return;
+            }
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(historyMap, null, 2));
+            const a = document.createElement('a');
+            a.setAttribute("href", dataStr);
+            a.setAttribute("download", `PSBZP_Bunch_History_Backup.json`);
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast("All Bunches exported as Backup JSON!");
+        }
+
+        function importAllBunchesJson(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (typeof imported === 'object' && imported !== null) {
+                        const existing = getBunchHistoryMap();
+                        const merged = { ...existing, ...imported };
+                        saveBunchHistoryMap(merged);
+                        renderHistoryList();
+                        showToast("Bunch History restored successfully!");
+                    }
+                } catch (err) {
+                    openAppModal({
+                        tag: 'Backup Restore',
+                        title: 'Invalid Backup File',
+                        message: 'The selected file is not a valid PSBZP JSON backup file.',
+                        type: 'danger',
+                        icon: 'fa-exclamation-triangle',
+                        mode: 'alert',
+                        confirmText: 'Try Again'
+                    });
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function updateHistoryBadgesAndPills() {
+            const historyMap = getBunchHistoryMap();
+            const keys = Object.keys(historyMap).sort((a, b) => {
+                const numA = parseInt(a), numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) return numB - numA;
+                return b.localeCompare(a);
+            });
+
+            const total = keys.length;
+            document.getElementById('sidebarHistoryCount').innerText = total;
+            document.getElementById('historyPanelTotal').innerText = total;
+
+            const activeBanch = (document.getElementById('inpPageNo').value || '').trim();
+            const pillsContainer = document.getElementById('sidebarQuickPills');
+
+            if (total === 0) {
+                pillsContainer.innerHTML = `<span style="color:var(--text-muted); font-size:11.5px;">No saved bunches yet.</span>`;
+                return;
+            }
+
+            let pillsHtml = '';
+            keys.forEach(bNo => {
+                const item = historyMap[bNo];
+                const isCurrent = (bNo === activeBanch) ? 'current-active' : '';
+                pillsHtml += `
+                    <div class="mini-bunch-pill ${isCurrent}" onclick="loadBunchFromHistory('${bNo}', false)" title="Banch ${bNo} (${item.entryCount}/10 entries) - Click to Preview">
+                        <i class="fa fa-file-alt"></i> #${bNo} <small style="opacity:0.8;">(${item.entryCount})</small>
+                    </div>
+                `;
+            });
+            pillsContainer.innerHTML = pillsHtml;
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById('historyListContainer');
+            const searchVal = (document.getElementById('inpHistorySearch').value || '').trim().toLowerCase();
+            const activeBanch = (document.getElementById('inpPageNo').value || '').trim();
+
+            const historyMap = getBunchHistoryMap();
+            const keys = Object.keys(historyMap).sort((a, b) => {
+                const numA = parseInt(a), numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) return numB - numA;
+                return b.localeCompare(a);
+            });
+
+            const filteredKeys = keys.filter(bNo => {
+                if (!searchVal) return true;
+                const item = historyMap[bNo];
+                return bNo.toLowerCase().includes(searchVal) ||
+                       (item.slRange && item.slRange.toLowerCase().includes(searchVal)) ||
+                       (item.firstAgency && item.firstAgency.toLowerCase().includes(searchVal)) ||
+                       (item.tbodyHtml && item.tbodyHtml.toLowerCase().includes(searchVal));
+            });
+
+            if (filteredKeys.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-history-state">
+                        <i class="fa fa-folder-open"></i>
+                        <h5>No Bunch Found</h5>
+                        <p>Jab aap kisi Banch Number mein entries add karenge, woh automatically yahan History mein save ho jayega.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filteredKeys.forEach((bNo) => {
+                const item = historyMap[bNo];
+                const isActive = (bNo === activeBanch) ? 'active-bunch' : '';
+                const isFull = (item.entryCount >= 10) ? 'full' : '';
+
+                html += `
+                    <div class="bunch-card ${isActive}" onclick="loadBunchFromHistory('${item.banchNo}', false)">
+                        <div class="bunch-card-top">
+                            <div class="bunch-circle-badge">
+                                <div class="bunch-num-circle">${item.banchNo}</div>
+                                <div class="bunch-meta-title">
+                                    <h4>Banch No. ${item.banchNo}</h4>
+                                    <span><i class="fa fa-clock me-1"></i>${item.updatedAt || 'Saved'}</span>
+                                </div>
+                            </div>
+                            <span class="bunch-count-tag ${isFull}">${item.entryCount} / 10 Entries</span>
+                        </div>
+
+                        <div class="bunch-details-row">
+                            <div><strong>Range:</strong> ${item.slRange || 'N/A'}</div>
+                            <div><strong>1st Agency:</strong> ${item.firstAgency || 'N/A'}</div>
+                        </div>
+
+                        <div class="bunch-card-actions">
+                            <button class="btn-bunch-sm" onclick="event.stopPropagation(); loadBunchFromHistory('${item.banchNo}', true)" title="Open & Edit Entries">
+                                <i class="fa fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-bunch-sm" onclick="quickPrintBunch('${item.banchNo}', 'Legal', event)" title="Load & Print Legal Page">
+                                <i class="fa fa-print"></i> Legal
+                            </button>
+                            <button class="btn-bunch-sm" onclick="quickPrintBunch('${item.banchNo}', 'A4', event)" title="Load & Print A4 Page">
+                                <i class="fa fa-file-pdf"></i> A4
+                            </button>
+                            <button class="btn-bunch-sm btn-bunch-del" onclick="deleteBunchFromHistory('${item.banchNo}', event)" title="Delete Bunch">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // PAGE NUMBER & TABLE ROW OPERATIONS
+        // ==========================================
+        function updatePageNo() {
+            const newBanch = document.getElementById('inpPageNo').value.trim();
+            document.getElementById('outPageNo').innerText = newBanch;
+            document.getElementById('previewBadgeBanchNo').innerText = newBanch || '-';
+
+            const historyMap = getBunchHistoryMap();
+            if (newBanch && historyMap[newBanch]) {
+                loadBunchFromHistory(newBanch, false);
+                return;
+            }
+
+            localStorage.setItem('zpBanchNo', newBanch);
+            updateHistoryBadgesAndPills();
+        }
+
+        function syncBanchNumber(element) {
+            const newBanch = element.innerText.trim();
+            document.getElementById('inpPageNo').value = newBanch;
+            document.getElementById('previewBadgeBanchNo').innerText = newBanch || '-';
+
+            const historyMap = getBunchHistoryMap();
+            if (newBanch && historyMap[newBanch]) {
+                loadBunchFromHistory(newBanch, false);
+                return;
+            }
+
+            saveTableData();
+        }
+
+        function updateStats() {
+            const rowCount = document.querySelectorAll('#tableBody tr').length;
+            document.getElementById('entryCount').innerText = rowCount;
+            const progBar = document.getElementById('entryProgressBar');
+            if (progBar) {
+                const pct = Math.min((rowCount / 10) * 100, 100);
+                progBar.style.width = pct + '%';
+                if (rowCount >= 10) {
+                    progBar.classList.add('completed');
+                } else {
+                    progBar.classList.remove('completed');
+                }
+            }
+        }
+
+        async function addTableRow() {
+            const tbody = document.getElementById('tableBody');
+            const currentRowCount = tbody.querySelectorAll('tr').length;
+            
+            if (!currentlyEditingRow && currentRowCount >= 10) {
+                const startNext = await openAppModal({
+                    tag: 'Page Capacity Reached (10/10)',
+                    title: 'Banch Page Full',
+                    message: 'Maximum 10 entries are allowed per register page! Would you like to save this page and start the Next Bunch (+1) now?',
+                    type: 'amber',
+                    icon: 'fa-layer-group',
+                    mode: 'confirm',
+                    confirmText: 'Start Next Bunch',
+                    cancelText: 'Stay Here'
+                });
+                if (startNext) {
+                    createNewNextBunch();
+                }
+                return;
+            }
+
+            const sl = document.getElementById('inpSl').value;
+            const rawAgency = document.getElementById('inpAgency').value;
+            const agency = rawAgency.replace(/\n/g, '<br>');
+            const rawWork = document.getElementById('inpWork').value;
+            const work = rawWork.replace(/\n/g, '<br>');
+            const workFontSize = document.getElementById('inpWorkFontSize').value || "14";
+
+            let wo = '';
+            const woNum = document.getElementById('inpWoNum').value;
+            const woDate = document.getElementById('inpWoDate').value;
+            if(woNum || woDate) {
+                wo = `PSBZP/WO/${woNum}`;
+                if(woDate) wo += `<br>dtd/- ${woDate}`;
+            }
+
+            let enit = '';
+            const enitNum = document.getElementById('inpEnitNum').value;
+            const enitYear = document.getElementById('inpEnitYear').value;
+            const enitSl = document.getElementById('inpEnitSl').value;
+            if(enitNum) {
+                enit = `e-NIT No. ${enitNum} of ${enitYear}.`;
+                if(enitSl) enit += ` Work Sl No. ${enitSl}`;
+            }
+
+            if (!sl && !agency && !wo && !enit && !work) {
+                openAppModal({
+                    tag: 'Incomplete Entry',
+                    title: 'Empty Fields',
+                    message: 'Please fill at least one field before adding an entry to the register table.',
+                    type: 'amber',
+                    icon: 'fa-edit',
+                    mode: 'alert',
+                    confirmText: 'OK, Fill Data'
+                });
+                return;
+            }
+
+            const tr = currentlyEditingRow ? currentlyEditingRow : document.createElement('tr');
+            tr.classList.add('new-row-flash');
+            tr.setAttribute("ondblclick", "removeRow(this)");
+            tr.setAttribute("onclick", "editRow(this)");
+            tr.setAttribute("title", "Click to edit, Double-click to delete");
+
+            tr.dataset.sl = sl;
+            tr.dataset.rawAgency = rawAgency;
+            tr.dataset.woNum = woNum;
+            tr.dataset.woDate = woDate;
+            tr.dataset.enitNum = enitNum;
+            tr.dataset.enitYear = enitYear;
+            tr.dataset.enitSl = enitSl;
+            tr.dataset.rawWork = rawWork;
+            tr.dataset.workFontSize = workFontSize;
+
+            tr.innerHTML = `
+                <td class="center"><div class="scale-content" data-base-size="14">${sl}</div></td>
+                <td><div class="scale-content" data-base-size="14">${agency}</div></td>
+                <td><div class="scale-content" data-base-size="14">${wo}</div></td>
+                <td><div class="scale-content" data-base-size="14">${enit}</div></td>
+                <td><div class="scale-content" data-base-size="${workFontSize}">${work}</div></td>
+                <td><div class="scale-content" data-base-size="14"></div></td>
+            `;
+
+            if (!currentlyEditingRow) {
+                tbody.appendChild(tr);
+            } else {
+                resetEditState();
+            }
+
+            if (sl && !isNaN(sl)) {
+                document.getElementById('inpSl').value = parseInt(sl) + 1;
+            } else {
+                document.getElementById('inpSl').value = '';
+            }
+
+            document.getElementById('inpAgency').value = '';
+            document.getElementById('inpWoNum').value = '';
+            document.getElementById('inpWoDate').value = '';
+            document.getElementById('inpEnitNum').value = '';
+            document.getElementById('inpEnitSl').value = '';
+            document.getElementById('inpWork').value = '';
+            document.getElementById('inpWorkFontSize').value = '14'; 
+            
+            document.getElementById('inpAgency').focus();
+            
+            saveTableData();
+            autoFitText();
+        }
+
+        async function fillSampleData() {
+            const confirmed = await openAppModal({
+                tag: 'Sample Generator',
+                title: 'Load 10 Sample Entries?',
+                message: 'This will replace the current page rows with 10 sample engineering entries for Banch No. ' + (document.getElementById('inpPageNo').value || '112') + '. Do you want to continue?',
+                type: 'amber',
+                icon: 'fa-magic',
+                mode: 'confirm',
+                confirmText: 'Load Sample',
+                cancelText: 'Cancel'
+            });
+            if (!confirmed) return;
+
+            resetEditState();
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = ''; 
+            
+            let currentSlInput = document.getElementById('inpSl').value;
+            let startSl = (currentSlInput && !isNaN(currentSlInput)) ? parseInt(currentSlInput) : 101;
+            let sampleHtml = '';
+            
+            for(let i=1; i<=10; i++) {
+                let sl = startSl++;
+                let rawAgency = `Sample Extremely Long Contractor Name & Infrastructure Development Co. Pvt Ltd 0${i}`;
+                let woNum = `100${i}`;
+                let woDate = `15.03.2026`;
+                let enitNum = `10${i}`;
+                let enitYear = `2025-2026`;
+                let enitSl = `0${i}`;
+                let rawWork = `Construction, maintenance and rigorous testing of rural pipeline network setup, solar panel grid installation, and structural integrity verification at Paschim Bardhaman Block ${i}.`;
+                let workFontSize = 14;
+
+                sampleHtml += `
+                <tr ondblclick="removeRow(this)" onclick="editRow(this)" title="Click to edit, Double-click to delete"
+                    data-sl="${sl}" data-raw-agency="${rawAgency}" data-wo-num="${woNum}" data-wo-date="${woDate}" 
+                    data-enit-num="${enitNum}" data-enit-year="${enitYear}" data-enit-sl="${enitSl}" 
+                    data-raw-work="${rawWork}" data-work-font-size="${workFontSize}">
+                    <td class="center"><div class="scale-content" data-base-size="14">${sl}</div></td>
+                    <td><div class="scale-content" data-base-size="14">${rawAgency}</div></td>
+                    <td><div class="scale-content" data-base-size="14">PSBZP/WO/${woNum}<br>dtd/- ${woDate}</div></td>
+                    <td><div class="scale-content" data-base-size="14">e-NIT No. ${enitNum} of ${enitYear}.<br>Work Sl No. ${enitSl}</div></td>
+                    <td><div class="scale-content" data-base-size="14">${rawWork}</div></td>
+                    <td><div class="scale-content" data-base-size="14"></div></td>
+                </tr>`;
+            }
+            
+            tbody.innerHTML = sampleHtml;
+            document.getElementById('inpSl').value = startSl;
+            triggerPaperFlipAnimation();
+            saveTableData();
+            autoFitText();
+            showToast(`Banch No. ${document.getElementById('inpPageNo').value} filled & saved to History!`);
+        }
+
+        async function removeRow(row) {
+            const slNum = row.dataset.sl || row.cells[0].innerText.trim() || '';
+            const confirmed = await openAppModal({
+                tag: 'Row Action',
+                title: `Delete Entry ${slNum ? '(SL No. ' + slNum + ')' : ''}?`,
+                message: 'Are you sure you want to remove this entry from the register table?',
+                type: 'danger',
+                icon: 'fa-trash',
+                mode: 'confirm',
+                confirmText: 'Remove Row',
+                cancelText: 'Cancel'
+            });
+            if (confirmed) {
+                if(currentlyEditingRow === row) resetEditState();
+                row.remove();
+                saveTableData();
+                showToast('Entry removed from table.');
+            }
+        }
+
+        async function clearTable() {
+            const banchNo = (document.getElementById('inpPageNo').value || '').trim();
+            const confirmed = await openAppModal({
+                tag: 'Clear Register Page',
+                title: `Clear All Entries in Banch ${banchNo}?`,
+                message: 'WARNING: This will clear all 10 entries from the current register page. Are you sure you want to proceed?',
+                type: 'danger',
+                icon: 'fa-exclamation-triangle',
+                mode: 'confirm',
+                confirmText: 'Yes, Clear All',
+                cancelText: 'Cancel'
+            });
+            if (confirmed) {
+                resetEditState();
+                document.getElementById('tableBody').innerHTML = ''; 
+                document.getElementById('inpSl').value = ''; 
+                localStorage.setItem('zpTableData', '');
+
+                const historyMap = getBunchHistoryMap();
+                if (banchNo && historyMap[banchNo]) {
+                    delete historyMap[banchNo];
+                    saveBunchHistoryMap(historyMap);
+                }
+                updateStats();
+                showToast(`Banch No. ${banchNo} cleared.`);
+            }
+        }
+
+        function saveTableData() {
+            const tbodyHtml = document.getElementById('tableBody').innerHTML;
+            const banchNo = document.getElementById('inpPageNo').value.trim();
+            localStorage.setItem('zpTableData', tbodyHtml);
+            localStorage.setItem('zpBanchNo', banchNo);
+            document.getElementById('previewBadgeBanchNo').innerText = banchNo || '-';
+            updateStats();
+            syncCurrentBunchToHistory(false);
+        }
+
+        function loadTableData() {
+            const savedData = localStorage.getItem('zpTableData');
+            const savedBanch = localStorage.getItem('zpBanchNo');
+            
+            if(savedBanch) {
+                document.getElementById('inpPageNo').value = savedBanch;
+                document.getElementById('outPageNo').innerText = savedBanch;
+                document.getElementById('previewBadgeBanchNo').innerText = savedBanch;
+            }
+
+            if(savedData) {
+                document.getElementById('tableBody').innerHTML = savedData;
+                const rows = document.querySelectorAll('#tableBody tr');
+                rows.forEach(row => {
+                    if(!row.hasAttribute("onclick")) row.setAttribute("onclick", "editRow(this)");
+                    if(!row.hasAttribute("ondblclick")) row.setAttribute("ondblclick", "removeRow(this)");
+                    const tds = row.querySelectorAll('td');
+                    tds.forEach(td => {
+                        if(!td.querySelector('.scale-content')) {
+                            const content = td.innerHTML;
+                            td.innerHTML = `<div class="scale-content" data-base-size="14">${content}</div>`;
+                        }
+                    });
+                });
+                syncCurrentBunchToHistory(false);
+            } else {
+                const historyMap = getBunchHistoryMap();
+                const currentBanch = document.getElementById('inpPageNo').value.trim();
+                if (historyMap[currentBanch]) {
+                    loadBunchFromHistory(currentBanch, false);
+                }
+            }
+
+            updateStats();
+            updateHistoryBadgesAndPills();
+            autoFitText();
+        }
+
+        // ==========================================
+        // DYNAMIC STRICT PRINT LOGIC
+        // ==========================================
+        function setPrintPageSize(type) {
+            let style = document.getElementById('dynamic-print-style');
+            if (!style) {
+                style = document.createElement('style');
+                style.id = 'dynamic-print-style';
+                document.head.appendChild(style);
+            }
+            
+            let pageCss = '';
+            if(type === 'A4') {
+                pageCss = '@page { size: 297mm 210mm landscape !important; margin: 0mm !important; }';
+            } else {
+                pageCss = '@page { size: 356mm 216mm landscape !important; margin: 0mm !important; }';
+            }
+
+            style.innerHTML = `@media print { 
+                ${pageCss}
+                html, body { overflow: hidden !important; height: 100vh !important; }
+            }`;
+        }
+
+        function printLegal() {
+            setPrintPageSize('Legal');
+            document.getElementById('registerNode').classList.remove('a4-size');
+            document.getElementById('btnModeLegal').classList.add('active');
+            document.getElementById('btnModeA4').classList.remove('active');
+            autoFitText(); 
+            window.print();
+        }
+
+        function printA4() {
+            setPrintPageSize('A4');
+            document.getElementById('registerNode').classList.add('a4-size');
+            document.getElementById('btnModeA4').classList.add('active');
+            document.getElementById('btnModeLegal').classList.remove('active');
+            autoFitText(); 
+            window.print();
+            
+            setTimeout(() => {
+                document.getElementById('registerNode').classList.remove('a4-size');
+                document.getElementById('btnModeLegal').classList.add('active');
+                document.getElementById('btnModeA4').classList.remove('active');
+                setPrintPageSize('Legal');
+                autoFitText(); 
+            }, 1000);
+        }
+
+        function downloadDoc(btn) {
+            const formNode = document.getElementById('registerNode'); 
+            const wrapper = document.getElementById('docWrapper');
+            
+            const originalTransform = wrapper.style.transform; 
+            wrapper.style.transform = "scale(1)";
+            void wrapper.offsetHeight; 
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Saving...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                html2canvas(formNode, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    backgroundColor: "#ffffff",
+                    logging: false
+                }).then(canvas => {
+                    try {
+                        let link = document.createElement('a'); 
+                        let pageNo = document.getElementById('inpPageNo').value || "1";
+                        link.download = `Work_List_Banch_${pageNo}.png`;
+                        link.href = canvas.toDataURL("image/png"); 
+                        link.click();
+                        showToast(`Work_List_Banch_${pageNo}.png saved!`);
+                    } catch (err) {
+                        openAppModal({
+                            tag: 'Export Error',
+                            title: 'Image Capture Failed',
+                            message: 'Unable to export the register page image. Please try again.',
+                            type: 'danger',
+                            icon: 'fa-image',
+                            mode: 'alert',
+                            confirmText: 'Close'
+                        });
+                        console.error(err);
+                    }
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }).catch(err => {
+                    wrapper.style.transform = originalTransform; 
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            }, 600); 
+        }
+    </script>
+</body>
+</html>
